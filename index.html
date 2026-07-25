@@ -978,7 +978,7 @@ async function doLogin(e){
     await auth.signInWithEmailAndPassword(email, password);
     closeOverlay('overlay-login');
   }catch(err){
-    errEl.textContent = 'Gagal masuk: email atau password salah.';
+    errEl.textContent = 'Gagal masuk (' + err.code + '): ' + err.message;
     errEl.style.display = 'block';
   }
   return false;
