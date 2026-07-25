@@ -83,6 +83,35 @@
     align-items:center;
     gap:18px;
   }
+  .auth-box{display:flex;align-items:center;}
+  .btn-login{
+    background:rgba(255,255,255,0.08);
+    border:1px solid rgba(255,255,255,0.18);
+    color:var(--cream);
+    font-size:12px;font-weight:600;
+    padding:7px 14px;border-radius:999px;
+    cursor:pointer;
+    display:inline-flex;align-items:center;gap:6px;
+    white-space:nowrap;
+  }
+  .btn-login:hover{background:rgba(255,255,255,0.16);}
+  .admin-badge{
+    display:flex;align-items:center;gap:8px;
+    background:var(--gold);
+    color:var(--green-900);
+    font-size:12px;font-weight:700;
+    padding:6px 6px 6px 14px;border-radius:999px;
+    white-space:nowrap;
+  }
+  .admin-badge button{
+    background:rgba(0,0,0,0.15);
+    border:none;
+    color:var(--green-900);
+    width:22px;height:22px;border-radius:50%;
+    cursor:pointer;
+    font-size:11px;
+  }
+  .admin-badge button:hover{background:rgba(0,0,0,0.3);}
   footer .social-links{justify-content:center;margin:10px 0 4px;}
   footer .social-links a{background:var(--cream-dim);color:var(--ink);}
   footer .social-links a:hover{background:var(--gold);color:#fff;}
@@ -353,6 +382,63 @@
   .photo-preview img{width:100%;height:100%;object-fit:cover;}
   .form-grid-2{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
 
+  /* ---------- Galeri (kolase foto & video) ---------- */
+  .galeri-grid{
+    column-count:3;
+    column-gap:14px;
+  }
+  @media (max-width:900px){ .galeri-grid{column-count:2;} }
+  @media (max-width:480px){ .galeri-grid{column-count:1;} }
+  .galeri-item{
+    break-inside:avoid;
+    margin-bottom:14px;
+    border-radius:12px;
+    overflow:hidden;
+    position:relative;
+    background:#fff;
+    border:1px solid var(--line);
+  }
+  .galeri-item img{width:100%;display:block;}
+  .galeri-item .video-embed{position:relative;width:100%;padding-top:56.25%;background:#000;}
+  .galeri-item .video-embed iframe{position:absolute;inset:0;width:100%;height:100%;border:0;}
+  .galeri-item .video-link-card{
+    padding:32px 16px;
+    text-align:center;
+    background:var(--green-800);
+    color:var(--cream);
+  }
+  .galeri-item .video-link-card a{
+    color:var(--gold);font-weight:600;text-decoration:none;
+  }
+  .galeri-item .video-link-card a:hover{text-decoration:underline;}
+  .galeri-item .caption{
+    padding:10px 12px;
+    font-size:13px;
+    color:var(--ink-soft);
+  }
+  .galeri-item .galeri-del{
+    position:absolute;
+    top:8px;right:8px;
+    width:28px;height:28px;
+    border-radius:50%;
+    background:rgba(20,20,20,0.55);
+    color:#fff;
+    border:none;
+    cursor:pointer;
+    display:flex;align-items:center;justify-content:center;
+    font-size:13px;
+  }
+  .galeri-item .galeri-del:hover{background:var(--maroon);}
+  .galeri-item .tipe-badge{
+    position:absolute;
+    top:8px;left:8px;
+    font-size:10px;font-weight:700;
+    padding:3px 8px;border-radius:999px;
+    background:rgba(255,255,255,0.9);
+    color:var(--ink);
+    text-transform:uppercase;
+  }
+
   /* ---------- Modal / form ---------- */
   .overlay{
     display:none;
@@ -416,9 +502,10 @@
     header{padding:14px 16px;flex-wrap:wrap;gap:10px;}
     .brand-text .name{font-size:16px;}
     .header-right{width:100%;flex-direction:column;align-items:stretch;gap:10px;}
-    nav{justify-content:space-between;width:100%;}
-    nav button{padding:7px 8px;font-size:12px;flex:1;text-align:center;}
+    nav{justify-content:center;width:100%;flex-wrap:wrap;}
+    nav button{padding:7px 8px;font-size:12px;flex:1 1 30%;text-align:center;}
     .social-links{justify-content:center;}
+    .auth-box{justify-content:center;}
     main{padding:24px 16px 90px;}
   }
 </style>
@@ -439,6 +526,7 @@
       <button data-page="anggota">Anggota</button>
       <button data-page="jadwal">Jadwal</button>
       <button data-page="latihan">Latihan</button>
+      <button data-page="galeri">Galeri</button>
     </nav>
     <div class="social-links">
       <a href="https://www.facebook.com/aghna.archery" target="_blank" rel="noopener" title="Facebook Aghna Archery">
@@ -447,6 +535,13 @@
       <a href="https://www.instagram.com/nuriynazihaharcher/" target="_blank" rel="noopener" title="Instagram Aghna Archery">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="3" width="18" height="18" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.2" cy="6.8" r="1"/></svg>
       </a>
+    </div>
+    <div class="auth-box">
+      <button id="btn-login" class="btn-login" onclick="openLoginForm()">&#128274; Masuk</button>
+      <div id="admin-badge" class="admin-badge" style="display:none;">
+        <span>&#9998; Admin</span>
+        <button onclick="doLogout()" title="Keluar">&#10148;</button>
+      </div>
     </div>
   </div>
 </header>
@@ -498,7 +593,7 @@
         <h2>Anggota klub</h2>
         <p>Kelola data pemanah yang tergabung di klub.</p>
       </div>
-      <button class="btn" onclick="openMemberForm()">+ Tambah anggota</button>
+      <button class="btn admin-only" onclick="openMemberForm()">+ Tambah anggota</button>
     </div>
     <div class="member-grid" id="anggota-list"></div>
   </section>
@@ -510,7 +605,7 @@
         <h2>Jadwal latihan klub</h2>
         <p>Atur kegiatan dan sesi latihan bersama.</p>
       </div>
-      <button class="btn" onclick="openJadwalForm()">+ Tambah jadwal</button>
+      <button class="btn admin-only" onclick="openJadwalForm()">+ Tambah jadwal</button>
     </div>
     <div class="list" id="jadwal-list"></div>
   </section>
@@ -522,9 +617,21 @@
         <h2>Latihan mandiri</h2>
         <p>Catat sesi latihan pribadimu di luar jadwal klub.</p>
       </div>
-      <button class="btn" onclick="openLatihanForm()">+ Catat latihan</button>
+      <button class="btn admin-only" onclick="openLatihanForm()">+ Catat latihan</button>
     </div>
     <div class="list" id="latihan-list"></div>
+  </section>
+
+  <!-- ================= GALERI ================= -->
+  <section class="page" id="page-galeri">
+    <div class="page-head">
+      <div>
+        <h2>Galeri klub</h2>
+        <p>Koleksi foto & video kegiatan Aghna Archery Club.</p>
+      </div>
+      <button class="btn admin-only" onclick="openGaleriForm()">+ Tambah ke galeri</button>
+    </div>
+    <div class="galeri-grid" id="galeri-list"></div>
   </section>
 
 </main>
@@ -696,10 +803,72 @@
   </div>
 </div>
 
-<button class="fab" id="fab" title="Tambah cepat">+</button>
+<!-- ================= MODAL: GALERI ================= -->
+<div class="overlay" id="overlay-galeri">
+  <div class="modal">
+    <h3>Tambah ke galeri</h3>
+    <form id="galeri-form" onsubmit="return saveGaleri(event)">
+      <div class="field">
+        <label>Jenis konten</label>
+        <select id="galeri-tipe" onchange="toggleGaleriTipe()">
+          <option value="foto">Foto</option>
+          <option value="video">Video (link)</option>
+        </select>
+      </div>
+
+      <div class="field" id="galeri-field-foto">
+        <label>Pilih foto</label>
+        <div class="photo-upload">
+          <div class="photo-preview" id="galeri-foto-preview" style="border-radius:8px;">&#128247;</div>
+          <input type="file" id="galeri-foto-input" accept="image/*" onchange="handleGaleriFotoSelected(event)">
+        </div>
+      </div>
+
+      <div class="field" id="galeri-field-video" style="display:none;">
+        <label>Link video</label>
+        <input type="url" id="galeri-video-url" placeholder="Link YouTube, Instagram, Google Drive, dll.">
+      </div>
+
+      <div class="field">
+        <label>Keterangan (opsional)</label>
+        <input type="text" id="galeri-caption" placeholder="Contoh: Latihan bersama, Juli 2026">
+      </div>
+
+      <div class="modal-actions">
+        <button type="button" class="btn ghost" onclick="closeOverlay('overlay-galeri')">Batal</button>
+        <button type="submit" class="btn">Simpan</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- ================= MODAL: LOGIN ADMIN ================= -->
+<div class="overlay" id="overlay-login">
+  <div class="modal">
+    <h3>Masuk sebagai Admin</h3>
+    <form id="login-form" onsubmit="return doLogin(event)">
+      <div class="field">
+        <label>Email</label>
+        <input type="email" id="login-email" required>
+      </div>
+      <div class="field">
+        <label>Password</label>
+        <input type="password" id="login-password" required>
+      </div>
+      <div class="err" id="login-error">Email atau password salah.</div>
+      <div class="modal-actions">
+        <button type="button" class="btn ghost" onclick="closeOverlay('overlay-login')">Batal</button>
+        <button type="submit" class="btn">Masuk</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<button class="fab admin-only" id="fab" title="Tambah cepat">+</button>
 
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
 <script>
 // ============ Konfigurasi Firebase ============
 // PENTING: Ganti nilai di bawah ini dengan config dari project Firebase kamu sendiri.
@@ -715,10 +884,11 @@ const firebaseConfig = {
 
 firebase.initializeApp(firebaseConfig);
 const db = firebase.firestore();
+const auth = firebase.auth();
 </script>
 <script>
 // ============ Penyimpanan data (Firebase Firestore, real-time) ============
-let DATA = { members: [], jadwal: [], latihan: [] };
+let DATA = { members: [], jadwal: [], latihan: [], galeri: [] };
 
 function todayStr(){ return new Date().toISOString().slice(0,10); }
 function fmtTanggal(iso){
@@ -749,6 +919,11 @@ db.collection('latihan').onSnapshot(snapshot=>{
   renderDashboard();
 }, err=>console.error('Gagal memuat data latihan:', err));
 
+db.collection('galeri').onSnapshot(snapshot=>{
+  DATA.galeri = snapshot.docs.map(doc=>({ id: doc.id, ...doc.data() }));
+  renderGaleri();
+}, err=>console.error('Gagal memuat data galeri:', err));
+
 // ============ Navigasi ============
 document.getElementById('nav').addEventListener('click', (e)=>{
   const btn = e.target.closest('button[data-page]');
@@ -768,12 +943,58 @@ document.getElementById('fab').addEventListener('click', ()=>{
   const active = document.querySelector('.page.active').id;
   if(active === 'page-anggota') openMemberForm();
   else if(active === 'page-jadwal') openJadwalForm();
+  else if(active === 'page-galeri') openGaleriForm();
   else openLatihanForm();
 });
 
 function closeOverlay(id){
   document.getElementById(id).classList.remove('open');
 }
+
+// ============ AUTENTIKASI ADMIN ============
+let isAdmin = false;
+
+function applyAdminVisibility(){
+  document.querySelectorAll('.admin-only').forEach(el=>{
+    el.style.display = isAdmin ? '' : 'none';
+  });
+}
+// Sembunyikan semua kontrol admin sejak awal, sebelum status login diketahui
+applyAdminVisibility();
+
+function openLoginForm(){
+  document.getElementById('login-form').reset();
+  document.getElementById('login-error').style.display = 'none';
+  document.getElementById('overlay-login').classList.add('open');
+}
+
+async function doLogin(e){
+  e.preventDefault();
+  const email = document.getElementById('login-email').value.trim();
+  const password = document.getElementById('login-password').value;
+  const errEl = document.getElementById('login-error');
+  errEl.style.display = 'none';
+  try{
+    await auth.signInWithEmailAndPassword(email, password);
+    closeOverlay('overlay-login');
+  }catch(err){
+    errEl.textContent = 'Gagal masuk: email atau password salah.';
+    errEl.style.display = 'block';
+  }
+  return false;
+}
+
+async function doLogout(){
+  if(!confirm('Keluar dari mode admin?')) return;
+  await auth.signOut();
+}
+
+auth.onAuthStateChanged(user=>{
+  isAdmin = !!user;
+  document.getElementById('btn-login').style.display = isAdmin ? 'none' : 'inline-flex';
+  document.getElementById('admin-badge').style.display = isAdmin ? 'flex' : 'none';
+  applyAdminVisibility();
+});
 
 // ============ ANGGOTA ============
 let currentFotoData = null; // menyimpan data foto (base64) yang sedang aktif di form
@@ -874,6 +1095,7 @@ function renderAnggota(){
   const items = [...DATA.members].sort((a,b)=>a.nama.localeCompare(b.nama));
   if(items.length===0){
     wrap.innerHTML = `<div class="empty" style="grid-column:1/-1;"><div class="display">Belum ada anggota</div>Tekan tombol "Tambah anggota" untuk mulai mencatat.</div>`;
+    applyAdminVisibility();
     return;
   }
   wrap.innerHTML = items.map(m=>{
@@ -892,7 +1114,7 @@ function renderAnggota(){
       <div class="card-body">
         <div class="member-name">${escapeHtml(m.nama)}</div>
         <div class="member-divisi">${escapeHtml(m.divisi || '-')}</div>
-        <div class="member-contact">${escapeHtml(m.kontak)}</div>
+        <div class="member-contact">${escapeHtml(maskKontak(m.kontak))}</div>
         <div class="member-contact" style="margin-top:2px;">TTL: ${ttl}</div>
 
         <div class="member-stats">
@@ -903,17 +1125,25 @@ function renderAnggota(){
         </div>
 
         <div class="card-actions">
-          <button class="icon-btn" title="Edit" onclick="editMember('${m.id}')">&#9998;</button>
-          <button class="icon-btn del" title="Hapus" onclick="deleteMember('${m.id}')">&#128465;</button>
+          <button class="icon-btn admin-only" title="Edit" onclick="editMember('${m.id}')">&#9998;</button>
+          <button class="icon-btn del admin-only" title="Hapus" onclick="deleteMember('${m.id}')">&#128465;</button>
         </div>
       </div>
     </div>
   `;}).join('');
+  applyAdminVisibility();
 }
 
 function editMember(id){
   const m = DATA.members.find(x=>x.id===id);
   if(m) openMemberForm(m);
+}
+
+// Sembunyikan 5 karakter terakhir nomor kontak, ganti dengan #####
+function maskKontak(kontak){
+  if(!kontak) return '-';
+  if(kontak.length <= 5) return '#'.repeat(kontak.length);
+  return kontak.slice(0, -5) + '#####';
 }
 
 // ============ JADWAL ============
@@ -969,6 +1199,7 @@ function renderJadwal(){
   const items = sortedJadwal();
   if(items.length===0){
     wrap.innerHTML = `<div class="empty"><div class="display">Belum ada jadwal</div>Tekan tombol "Tambah jadwal" untuk membuat kegiatan baru.</div>`;
+    applyAdminVisibility();
     return;
   }
   wrap.innerHTML = items.map(j=>`
@@ -979,11 +1210,12 @@ function renderJadwal(){
         <div class="sub">${fmtTanggal(j.tanggal)} &middot; ${j.waktu} &middot; ${escapeHtml(j.lokasi)}</div>
       </div>
       <div class="item-actions">
-        <button class="icon-btn" title="Edit" onclick='openJadwalForm(${JSON.stringify(j)})'>&#9998;</button>
-        <button class="icon-btn del" title="Hapus" onclick="deleteJadwal('${j.id}')">&#128465;</button>
+        <button class="icon-btn admin-only" title="Edit" onclick='openJadwalForm(${JSON.stringify(j)})'>&#9998;</button>
+        <button class="icon-btn del admin-only" title="Hapus" onclick="deleteJadwal('${j.id}')">&#128465;</button>
       </div>
     </div>
   `).join('');
+  applyAdminVisibility();
 }
 
 function renderDashJadwal(){
@@ -1042,6 +1274,7 @@ function renderLatihan(){
   const items = [...DATA.latihan].sort((a,b)=>b.tanggal.localeCompare(a.tanggal));
   if(items.length===0){
     wrap.innerHTML = `<div class="empty"><div class="display">Belum ada catatan latihan</div>Tekan tombol "Catat latihan" untuk mulai mencatat progresmu.</div>`;
+    applyAdminVisibility();
     return;
   }
   wrap.innerHTML = items.map(l=>`
@@ -1052,10 +1285,140 @@ function renderLatihan(){
         <div class="sub">${fmtTanggal(l.tanggal)}${l.catatan ? ' &middot; '+escapeHtml(l.catatan) : ''}</div>
       </div>
       <div class="item-actions">
-        <button class="icon-btn del" title="Hapus" onclick="deleteLatihan('${l.id}')">&#128465;</button>
+        <button class="icon-btn del admin-only" title="Hapus" onclick="deleteLatihan('${l.id}')">&#128465;</button>
       </div>
     </div>
   `).join('');
+  applyAdminVisibility();
+}
+
+// ============ GALERI ============
+let currentGaleriFotoData = null;
+
+function toggleGaleriTipe(){
+  const tipe = document.getElementById('galeri-tipe').value;
+  document.getElementById('galeri-field-foto').style.display = tipe === 'foto' ? 'block' : 'none';
+  document.getElementById('galeri-field-video').style.display = tipe === 'video' ? 'block' : 'none';
+}
+
+function openGaleriForm(){
+  document.getElementById('galeri-form').reset();
+  document.getElementById('galeri-tipe').value = 'foto';
+  toggleGaleriTipe();
+  currentGaleriFotoData = null;
+  document.getElementById('galeri-foto-preview').innerHTML = '&#128247;';
+  document.getElementById('overlay-galeri').classList.add('open');
+}
+
+// Kompres foto galeri sebelum disimpan (dimensi lebih besar dari foto profil karena untuk ditampilkan penuh)
+function handleGaleriFotoSelected(event){
+  const file = event.target.files[0];
+  if(!file) return;
+
+  const reader = new FileReader();
+  reader.onload = function(e){
+    const img = new Image();
+    img.onload = function(){
+      const maxSize = 800;
+      let w = img.width, h = img.height;
+      if(w > h && w > maxSize){ h = Math.round(h * (maxSize / w)); w = maxSize; }
+      else if(h > maxSize){ w = Math.round(w * (maxSize / h)); h = maxSize; }
+
+      const canvas = document.createElement('canvas');
+      canvas.width = w; canvas.height = h;
+      canvas.getContext('2d').drawImage(img, 0, 0, w, h);
+
+      currentGaleriFotoData = canvas.toDataURL('image/jpeg', 0.72);
+      document.getElementById('galeri-foto-preview').innerHTML =
+        `<img src="${currentGaleriFotoData}" alt="Preview" style="width:100%;height:100%;object-fit:cover;">`;
+    };
+    img.src = e.target.result;
+  };
+  reader.readAsDataURL(file);
+}
+
+// Ambil ID video YouTube dari berbagai format link (watch, youtu.be, shorts)
+function getYoutubeId(url){
+  const patterns = [
+    /youtube\.com\/watch\?v=([\w-]+)/,
+    /youtu\.be\/([\w-]+)/,
+    /youtube\.com\/shorts\/([\w-]+)/,
+    /youtube\.com\/embed\/([\w-]+)/,
+  ];
+  for(const p of patterns){
+    const m = url.match(p);
+    if(m) return m[1];
+  }
+  return null;
+}
+
+async function saveGaleri(e){
+  e.preventDefault();
+  const tipe = document.getElementById('galeri-tipe').value;
+  const caption = document.getElementById('galeri-caption').value.trim();
+
+  const data = { tipe, caption, tanggal: todayStr() };
+
+  if(tipe === 'foto'){
+    if(!currentGaleriFotoData){
+      alert('Pilih foto terlebih dahulu.');
+      return false;
+    }
+    data.foto = currentGaleriFotoData;
+  }else{
+    const url = document.getElementById('galeri-video-url').value.trim();
+    if(!url){
+      alert('Isi link video terlebih dahulu.');
+      return false;
+    }
+    data.url = url;
+    data.youtubeId = getYoutubeId(url);
+  }
+
+  try{
+    await db.collection('galeri').add(data);
+    closeOverlay('overlay-galeri');
+  }catch(err){
+    alert('Gagal menyimpan ke galeri. Cek koneksi internet.\n'+err.message);
+  }
+  return false;
+}
+
+async function deleteGaleri(id){
+  if(!confirm('Hapus item galeri ini?')) return;
+  try{
+    await db.collection('galeri').doc(id).delete();
+  }catch(err){
+    alert('Gagal menghapus item galeri.\n'+err.message);
+  }
+}
+
+function renderGaleri(){
+  const wrap = document.getElementById('galeri-list');
+  const items = [...DATA.galeri].sort((a,b)=>b.tanggal.localeCompare(a.tanggal));
+  if(items.length===0){
+    wrap.innerHTML = `<div class="empty"><div class="display">Galeri masih kosong</div>Tekan tombol "Tambah ke galeri" untuk mulai mengunggah foto atau video.</div>`;
+    applyAdminVisibility();
+    return;
+  }
+  wrap.innerHTML = items.map(g=>{
+    let media;
+    if(g.tipe === 'foto'){
+      media = `<img src="${g.foto}" alt="${escapeHtml(g.caption||'Foto galeri')}">`;
+    }else if(g.youtubeId){
+      media = `<div class="video-embed"><iframe src="https://www.youtube.com/embed/${g.youtubeId}" allowfullscreen title="Video galeri"></iframe></div>`;
+    }else{
+      media = `<div class="video-link-card">&#127909;<br><a href="${g.url}" target="_blank" rel="noopener">Buka video &#8599;</a></div>`;
+    }
+    return `
+    <div class="galeri-item">
+      <span class="tipe-badge">${g.tipe === 'foto' ? 'Foto' : 'Video'}</span>
+      <button class="galeri-del admin-only" title="Hapus" onclick="deleteGaleri('${g.id}')">&#10005;</button>
+      ${media}
+      ${g.caption ? `<div class="caption">${escapeHtml(g.caption)}</div>` : ''}
+    </div>
+  `;}).join('');
+  applyAdminVisibility();
 }
 
 // ============ DASHBOARD STATS ============
@@ -1089,6 +1452,7 @@ function renderAll(){
   renderAnggota();
   renderJadwal();
   renderLatihan();
+  renderGaleri();
 }
 
 renderAll();
