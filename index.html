@@ -442,7 +442,7 @@
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="3" width="18" height="18" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.2" cy="6.8" r="1"/></svg>
     </a>
   </div>
-  Aghna Archery Club &middot; data tersimpan lokal di browser ini
+  Aghna Archery Club &middot; data tersimpan otomatis &amp; real-time untuk semua pengunjung
 </footer>
 
 <!-- ================= MODAL: ANGGOTA ================= -->
@@ -550,29 +550,56 @@
 
 <button class="fab" id="fab" title="Tambah cepat">+</button>
 
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
 <script>
-// ============ Penyimpanan data (localStorage) ============
-const STORAGE_KEY = 'aghna_archery_data_v1';
+// ============ Konfigurasi Firebase ============
+// PENTING: Ganti nilai di bawah ini dengan config dari project Firebase kamu sendiri.
+// Cara mendapatkannya: Firebase Console > Project Settings > scroll ke "Your apps" > SDK setup and configuration
+const firebaseConfig = {
+  apiKey: "AIzaSyCZjVCB34mva3oMFoT-tukpaGJgrvZoBRE",
+  authDomain: "aghna-archery.firebaseapp.com",
+  projectId: "aghna-archery",
+  storageBucket: "aghna-archery.firebasestorage.app",
+  messagingSenderId: "374280708816",
+  appId: "1:374280708816:web:258922b58d23d651cd74d5"
+};
 
-function loadData(){
-  const raw = localStorage.getItem(STORAGE_KEY);
-  if(raw){
-    try{ return JSON.parse(raw); }catch(e){}
-  }
-  return { members: [], jadwal: [], latihan: [] };
-}
-function saveData(){
-  localStorage.setItem(STORAGE_KEY, JSON.stringify(DATA));
-}
+firebase.initializeApp(firebaseConfig);
+const db = firebase.firestore();
+</script>
+<script>
+// ============ Penyimpanan data (Firebase Firestore, real-time) ============
+let DATA = { members: [], jadwal: [], latihan: [] };
 
-let DATA = loadData();
-
-function uid(){ return Date.now().toString(36) + Math.random().toString(36).slice(2,7); }
 function todayStr(){ return new Date().toISOString().slice(0,10); }
 function fmtTanggal(iso){
   const d = new Date(iso + 'T00:00:00');
   return d.toLocaleDateString('id-ID', { day:'numeric', month:'long', year:'numeric' });
 }
+
+// Dengarkan perubahan data secara real-time dari Firestore.
+// Setiap kali ada perubahan (dari perangkat manapun), tampilan otomatis diperbarui.
+db.collection('members').onSnapshot(snapshot=>{
+  DATA.members = snapshot.docs.map(doc=>({ id: doc.id, ...doc.data() }));
+  renderAnggota();
+  renderDashboard();
+}, err=>{
+  console.error('Gagal memuat data anggota:', err);
+  alert('Gagal terhubung ke database. Cek koneksi internet atau konfigurasi Firebase.');
+});
+
+db.collection('jadwal').onSnapshot(snapshot=>{
+  DATA.jadwal = snapshot.docs.map(doc=>({ id: doc.id, ...doc.data() }));
+  renderJadwal();
+  renderDashboard();
+}, err=>console.error('Gagal memuat data jadwal:', err));
+
+db.collection('latihan').onSnapshot(snapshot=>{
+  DATA.latihan = snapshot.docs.map(doc=>({ id: doc.id, ...doc.data() }));
+  renderLatihan();
+  renderDashboard();
+}, err=>console.error('Gagal memuat data latihan:', err));
 
 // ============ Navigasi ============
 document.getElementById('nav').addEventListener('click', (e)=>{
@@ -611,33 +638,35 @@ function openMemberForm(member){
   document.getElementById('overlay-member').classList.add('open');
 }
 
-function saveMember(e){
+async function saveMember(e){
   e.preventDefault();
   const id = document.getElementById('member-id').value;
   const data = {
-    id: id || uid(),
     nama: document.getElementById('member-nama').value.trim(),
     kontak: document.getElementById('member-kontak').value.trim(),
     status: document.getElementById('member-status').value,
     tanggal: document.getElementById('member-tanggal').value,
   };
-  if(id){
-    const idx = DATA.members.findIndex(m=>m.id===id);
-    DATA.members[idx] = data;
-  }else{
-    DATA.members.push(data);
+  try{
+    if(id){
+      await db.collection('members').doc(id).set(data);
+    }else{
+      await db.collection('members').add(data);
+    }
+    closeOverlay('overlay-member');
+  }catch(err){
+    alert('Gagal menyimpan data anggota. Cek koneksi internet.\n'+err.message);
   }
-  saveData();
-  closeOverlay('overlay-member');
-  renderAll();
   return false;
 }
 
-function deleteMember(id){
+async function deleteMember(id){
   if(!confirm('Hapus anggota ini?')) return;
-  DATA.members = DATA.members.filter(m=>m.id!==id);
-  saveData();
-  renderAll();
+  try{
+    await db.collection('members').doc(id).delete();
+  }catch(err){
+    alert('Gagal menghapus data anggota.\n'+err.message);
+  }
 }
 
 function renderAnggota(){
@@ -675,34 +704,36 @@ function openJadwalForm(jadwal){
   document.getElementById('overlay-jadwal').classList.add('open');
 }
 
-function saveJadwal(e){
+async function saveJadwal(e){
   e.preventDefault();
   const id = document.getElementById('jadwal-id').value;
   const data = {
-    id: id || uid(),
     judul: document.getElementById('jadwal-judul').value.trim(),
     tanggal: document.getElementById('jadwal-tanggal').value,
     waktu: document.getElementById('jadwal-waktu').value,
     lokasi: document.getElementById('jadwal-lokasi').value.trim(),
     keterangan: document.getElementById('jadwal-keterangan').value.trim(),
   };
-  if(id){
-    const idx = DATA.jadwal.findIndex(j=>j.id===id);
-    DATA.jadwal[idx] = data;
-  }else{
-    DATA.jadwal.push(data);
+  try{
+    if(id){
+      await db.collection('jadwal').doc(id).set(data);
+    }else{
+      await db.collection('jadwal').add(data);
+    }
+    closeOverlay('overlay-jadwal');
+  }catch(err){
+    alert('Gagal menyimpan jadwal. Cek koneksi internet.\n'+err.message);
   }
-  saveData();
-  closeOverlay('overlay-jadwal');
-  renderAll();
   return false;
 }
 
-function deleteJadwal(id){
+async function deleteJadwal(id){
   if(!confirm('Hapus jadwal ini?')) return;
-  DATA.jadwal = DATA.jadwal.filter(j=>j.id!==id);
-  saveData();
-  renderAll();
+  try{
+    await db.collection('jadwal').doc(id).delete();
+  }catch(err){
+    alert('Gagal menghapus jadwal.\n'+err.message);
+  }
 }
 
 function sortedJadwal(){
@@ -756,27 +787,30 @@ function openLatihanForm(){
   document.getElementById('overlay-latihan').classList.add('open');
 }
 
-function saveLatihan(e){
+async function saveLatihan(e){
   e.preventDefault();
   const data = {
-    id: uid(),
     jenis: document.getElementById('latihan-jenis').value,
     durasi: parseInt(document.getElementById('latihan-durasi').value, 10),
     tanggal: document.getElementById('latihan-tanggal').value,
     catatan: document.getElementById('latihan-catatan').value.trim(),
   };
-  DATA.latihan.push(data);
-  saveData();
-  closeOverlay('overlay-latihan');
-  renderAll();
+  try{
+    await db.collection('latihan').add(data);
+    closeOverlay('overlay-latihan');
+  }catch(err){
+    alert('Gagal menyimpan catatan latihan. Cek koneksi internet.\n'+err.message);
+  }
   return false;
 }
 
-function deleteLatihan(id){
+async function deleteLatihan(id){
   if(!confirm('Hapus catatan latihan ini?')) return;
-  DATA.latihan = DATA.latihan.filter(l=>l.id!==id);
-  saveData();
-  renderAll();
+  try{
+    await db.collection('latihan').doc(id).delete();
+  }catch(err){
+    alert('Gagal menghapus catatan latihan.\n'+err.message);
+  }
 }
 
 function renderLatihan(){
@@ -837,3 +871,4 @@ renderAll();
 </script>
 </body>
 </html>
+
