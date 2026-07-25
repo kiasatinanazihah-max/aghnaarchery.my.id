@@ -617,7 +617,13 @@
         <h2>Latihan mandiri</h2>
         <p>Catat sesi latihan pribadimu di luar jadwal klub.</p>
       </div>
-      <button class="btn admin-only" onclick="openLatihanForm()">+ Catat latihan</button>
+      <button class="btn" onclick="openLatihanForm()">+ Catat latihan</button>
+    </div>
+    <div class="field" style="max-width:260px;margin-bottom:16px;">
+      <label>Tampilkan latihan milik</label>
+      <select id="latihan-filter-pemanah" onchange="renderLatihan()">
+        <option value="">Semua pemanah</option>
+      </select>
     </div>
     <div class="list" id="latihan-list"></div>
   </section>
@@ -773,6 +779,10 @@
     <h3>Catat latihan mandiri</h3>
     <form id="latihan-form" onsubmit="return saveLatihan(event)">
       <div class="field">
+        <label>Nama pemanah</label>
+        <select id="latihan-pemanah" required></select>
+      </div>
+      <div class="field">
         <label>Jenis latihan</label>
         <select id="latihan-jenis">
           <option>Jarak dekat (18m)</option>
@@ -864,7 +874,7 @@
   </div>
 </div>
 
-<button class="fab admin-only" id="fab" title="Tambah cepat">+</button>
+<button class="fab" id="fab" title="Tambah cepat">+</button>
 
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
@@ -902,6 +912,7 @@ db.collection('members').onSnapshot(snapshot=>{
   DATA.members = snapshot.docs.map(doc=>({ id: doc.id, ...doc.data() }));
   renderAnggota();
   renderDashboard();
+  renderLatihan();
 }, err=>{
   console.error('Gagal memuat data anggota:', err);
   alert('Gagal terhubung ke database. Cek koneksi internet atau konfigurasi Firebase.');
@@ -917,6 +928,7 @@ db.collection('latihan').onSnapshot(snapshot=>{
   DATA.latihan = snapshot.docs.map(doc=>({ id: doc.id, ...doc.data() }));
   renderLatihan();
   renderDashboard();
+  renderAnggota();
 }, err=>console.error('Gagal memuat data latihan:', err));
 
 db.collection('galeri').onSnapshot(snapshot=>{
@@ -937,6 +949,15 @@ function goToPage(page){
   document.getElementById('page-'+page).classList.add('active');
   document.querySelector(`nav button[data-page="${page}"]`).classList.add('active');
   renderAll();
+  updateFabVisibility();
+}
+
+// Fab selalu muncul di halaman Latihan (semua orang boleh lapor latihan sendiri),
+// tapi di halaman lain hanya muncul kalau sedang login sebagai admin
+function updateFabVisibility(){
+  const active = document.querySelector('.page.active').id;
+  const fab = document.getElementById('fab');
+  fab.style.display = (active === 'page-latihan' || isAdmin) ? 'flex' : 'none';
 }
 
 document.getElementById('fab').addEventListener('click', ()=>{
@@ -958,6 +979,7 @@ function applyAdminVisibility(){
   document.querySelectorAll('.admin-only').forEach(el=>{
     el.style.display = isAdmin ? '' : 'none';
   });
+  updateFabVisibility();
 }
 // Sembunyikan semua kontrol admin sejak awal, sebelum status login diketahui
 applyAdminVisibility();
@@ -1105,6 +1127,9 @@ function renderAnggota(){
     const ttl = (m.tempatLahir || m.tanggalLahir)
       ? `${escapeHtml(m.tempatLahir || '-')}${m.tanggalLahir ? ', ' + fmtTanggal(m.tanggalLahir) : ''}`
       : '-';
+    const latihanMilik = DATA.latihan.filter(l=>l.memberId === m.id);
+    const latihanCount = latihanMilik.length;
+    const latihanMenit = latihanMilik.reduce((sum,l)=>sum + (l.durasi||0), 0);
     return `
     <div class="member-card">
       <div class="card-top">
@@ -1122,6 +1147,11 @@ function renderAnggota(){
           <div class="member-stat">Tinggi badan<b>${m.tinggi != null ? m.tinggi + ' cm' : '-'}</b></div>
           <div class="member-stat">Draw length<b>${m.drawLength != null ? m.drawLength + ' in' : '-'}</b></div>
           <div class="member-stat">Draw weight<b>${m.drawWeight != null ? m.drawWeight + ' lbs' : '-'}</b></div>
+        </div>
+
+        <div class="member-stats" style="border-top:none;margin-top:2px;padding-top:2px;">
+          <div class="member-stat">Sesi latihan mandiri<b>${latihanCount} sesi</b></div>
+          <div class="member-stat">Total menit tercatat<b>${latihanMenit} menit</b></div>
         </div>
 
         <div class="card-actions">
@@ -1240,12 +1270,27 @@ function renderDashJadwal(){
 function openLatihanForm(){
   document.getElementById('latihan-form').reset();
   document.getElementById('latihan-tanggal').value = todayStr();
+
+  const select = document.getElementById('latihan-pemanah');
+  const sortedMembers = [...DATA.members].sort((a,b)=>a.nama.localeCompare(b.nama));
+  select.innerHTML = sortedMembers.length
+    ? sortedMembers.map(m=>`<option value="${m.id}">${escapeHtml(m.nama)}</option>`).join('')
+    : '<option value="">Belum ada data anggota</option>';
+
   document.getElementById('overlay-latihan').classList.add('open');
 }
 
 async function saveLatihan(e){
   e.preventDefault();
+  const memberId = document.getElementById('latihan-pemanah').value;
+  const member = DATA.members.find(m=>m.id===memberId);
+  if(!member){
+    alert('Pilih nama pemanah terlebih dahulu. Kalau daftar kosong, tambahkan data anggota dulu di halaman Anggota.');
+    return false;
+  }
   const data = {
+    memberId: member.id,
+    memberNama: member.nama,
     jenis: document.getElementById('latihan-jenis').value,
     durasi: parseInt(document.getElementById('latihan-durasi').value, 10),
     tanggal: document.getElementById('latihan-tanggal').value,
@@ -1271,7 +1316,20 @@ async function deleteLatihan(id){
 
 function renderLatihan(){
   const wrap = document.getElementById('latihan-list');
-  const items = [...DATA.latihan].sort((a,b)=>b.tanggal.localeCompare(a.tanggal));
+  const filterSelect = document.getElementById('latihan-filter-pemanah');
+
+  // Isi ulang opsi filter berdasarkan anggota yang ada, tanpa menghapus pilihan aktif
+  const currentFilter = filterSelect.value;
+  const sortedMembers = [...DATA.members].sort((a,b)=>a.nama.localeCompare(b.nama));
+  filterSelect.innerHTML = '<option value="">Semua pemanah</option>' +
+    sortedMembers.map(m=>`<option value="${m.id}">${escapeHtml(m.nama)}</option>`).join('');
+  filterSelect.value = currentFilter;
+
+  let items = [...DATA.latihan].sort((a,b)=>b.tanggal.localeCompare(a.tanggal));
+  if(filterSelect.value){
+    items = items.filter(l=>l.memberId === filterSelect.value);
+  }
+
   if(items.length===0){
     wrap.innerHTML = `<div class="empty"><div class="display">Belum ada catatan latihan</div>Tekan tombol "Catat latihan" untuk mulai mencatat progresmu.</div>`;
     applyAdminVisibility();
@@ -1281,7 +1339,7 @@ function renderLatihan(){
     <div class="item">
       <div class="avatar">&#127919;</div>
       <div class="info">
-        <div class="title">${escapeHtml(l.jenis)} &middot; <span class="mono">${l.durasi} menit</span></div>
+        <div class="title">${escapeHtml(l.memberNama || 'Tanpa nama')} &middot; ${escapeHtml(l.jenis)} &middot; <span class="mono">${l.durasi} menit</span></div>
         <div class="sub">${fmtTanggal(l.tanggal)}${l.catatan ? ' &middot; '+escapeHtml(l.catatan) : ''}</div>
       </div>
       <div class="item-actions">
