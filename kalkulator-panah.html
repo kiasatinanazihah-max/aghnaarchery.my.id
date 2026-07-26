@@ -1,0 +1,510 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Kalkulator Anak Panah — Aghna Archery Club</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,600;9..144,700&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --green-900:#0D0D0D;
+    --green-800:#141414;
+    --green-700:#1F1F1F;
+    --cream:#FAFAFA;
+    --cream-dim:#EFEFEF;
+    --gold:#E8171C;
+    --gold-dark:#B10F13;
+    --maroon:#B10F13;
+    --blue:#1230C4;
+    --blue-dark:#0C2091;
+    --amber:#B7791F;
+    --amber-bg:#FBF0DC;
+    --green-ok:#2F7D32;
+    --green-ok-bg:#E4F3E5;
+    --ink:#161616;
+    --ink-soft:#5C5C5C;
+    --line:rgba(20,20,20,0.12);
+    --radius:10px;
+    font-family:'Inter',sans-serif;
+  }
+  *{box-sizing:border-box;}
+  body{margin:0;background:var(--cream);color:var(--ink);min-height:100vh;}
+  h1,h2,h3,.display{font-family:'Fraunces',serif;font-weight:600;letter-spacing:-0.01em;}
+  .mono{font-family:'JetBrains Mono',monospace;}
+
+  header{
+    background:var(--green-800);color:var(--cream);
+    padding:20px 24px;
+    display:flex;align-items:center;justify-content:space-between;
+    position:sticky;top:0;z-index:20;
+    box-shadow:0 1px 0 rgba(0,0,0,0.15);
+    flex-wrap:wrap;gap:10px;
+  }
+  .brand{display:flex;align-items:center;gap:12px;}
+  .brand-text .name{font-family:'Fraunces',serif;font-size:18px;font-weight:700;line-height:1.1;}
+  .brand-text .tag{font-size:11px;letter-spacing:0.1em;text-transform:uppercase;color:var(--gold);}
+  .back-link{
+    color:var(--cream);opacity:0.75;font-size:13px;text-decoration:none;
+    display:inline-flex;align-items:center;gap:6px;
+  }
+  .back-link:hover{opacity:1;}
+
+  main{max-width:960px;margin:0 auto;padding:32px 24px 80px;}
+
+  .intro{margin-bottom:28px;}
+  .intro h1{font-size:26px;margin:0 0 6px;color:var(--green-900);}
+  .intro p{margin:0;color:var(--ink-soft);font-size:14px;max-width:640px;line-height:1.6;}
+
+  .layout{display:grid;grid-template-columns:1fr;gap:24px;}
+  @media (min-width:860px){ .layout{grid-template-columns:1fr 1fr;align-items:start;} }
+
+  .card{
+    background:#fff;border:1px solid var(--line);border-radius:14px;
+    padding:22px;
+  }
+  .card h2{font-size:16px;margin:0 0 4px;color:var(--green-900);}
+  .card .card-sub{font-size:12px;color:var(--ink-soft);margin-bottom:18px;}
+
+  .field-row{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:14px;}
+  .field{margin-bottom:14px;}
+  .field label{display:block;font-size:12.5px;font-weight:600;color:var(--ink-soft);margin-bottom:6px;}
+  .field .hint{font-size:11px;color:var(--ink-soft);margin-top:4px;font-weight:400;}
+  .field input, .field select{
+    width:100%;font-family:'Inter',sans-serif;font-size:14px;
+    padding:10px 12px;border-radius:8px;border:1px solid var(--line);
+    background:var(--cream);color:var(--ink);
+  }
+  .field input:focus, .field select:focus{outline:none;border-color:var(--gold-dark);}
+
+  .segmented{display:flex;border:1px solid var(--line);border-radius:8px;overflow:hidden;}
+  .segmented button{
+    flex:1;padding:10px 8px;font-size:12.5px;font-weight:600;
+    background:var(--cream);border:none;border-right:1px solid var(--line);
+    cursor:pointer;color:var(--ink-soft);
+  }
+  .segmented button:last-child{border-right:none;}
+  .segmented button.active{background:var(--green-800);color:var(--cream);}
+
+  .btn{
+    font-family:'Inter',sans-serif;font-size:14px;font-weight:600;
+    padding:12px 18px;border-radius:999px;border:1.5px solid var(--green-800);
+    background:var(--green-800);color:var(--cream);cursor:pointer;
+    width:100%;margin-top:6px;
+  }
+  .btn:hover{background:var(--green-700);}
+
+  /* ---------- Diagram panah (elemen signature) ---------- */
+  .arrow-diagram{margin:4px 0 20px;}
+  .arrow-diagram svg{width:100%;height:auto;display:block;}
+  .diagram-caption{
+    display:flex;justify-content:space-between;
+    font-size:11px;color:var(--ink-soft);margin-top:6px;
+  }
+
+  /* ---------- Hasil ---------- */
+  .result-grid{
+    display:grid;grid-template-columns:1fr 1fr;gap:10px;
+    margin-bottom:18px;
+  }
+  .result-stat{
+    border:1px solid var(--line);border-radius:10px;padding:12px 14px;
+    background:var(--cream);
+  }
+  .result-stat .label{font-size:11px;color:var(--ink-soft);text-transform:uppercase;letter-spacing:0.04em;}
+  .result-stat .value{font-family:'JetBrains Mono',monospace;font-weight:700;font-size:18px;margin-top:3px;color:var(--green-900);}
+  .badge{
+    display:inline-block;font-size:10.5px;font-weight:700;
+    padding:2px 8px;border-radius:999px;margin-top:6px;
+  }
+  .badge.ok{background:var(--green-ok-bg);color:var(--green-ok);}
+  .badge.warn{background:var(--amber-bg);color:var(--amber);}
+
+  .shaft-list{display:flex;flex-direction:column;gap:10px;}
+  .shaft-item{
+    display:flex;align-items:center;gap:12px;
+    border:1px solid var(--line);border-radius:10px;padding:12px 14px;
+    position:relative;
+  }
+  .shaft-item.top{border-color:var(--gold-dark);background:#FFF7F7;}
+  .shaft-rank{
+    width:26px;height:26px;border-radius:50%;flex-shrink:0;
+    background:var(--green-800);color:#fff;font-size:12px;font-weight:700;
+    display:flex;align-items:center;justify-content:center;
+  }
+  .shaft-item.top .shaft-rank{background:var(--gold-dark);}
+  .shaft-info{flex:1;min-width:0;}
+  .shaft-name{font-weight:700;font-size:13.5px;}
+  .shaft-meta{font-size:11.5px;color:var(--ink-soft);margin-top:2px;}
+  .shaft-stats{font-size:11px;color:var(--ink-soft);text-align:right;font-family:'JetBrains Mono',monospace;flex-shrink:0;}
+
+  .disclaimer{
+    margin-top:20px;font-size:11.5px;color:var(--ink-soft);
+    background:var(--cream-dim);border-radius:8px;padding:12px 14px;line-height:1.6;
+  }
+
+  .empty-result{
+    text-align:center;color:var(--ink-soft);font-size:13px;padding:40px 16px;
+  }
+
+  footer{text-align:center;padding:24px;font-size:12px;color:var(--ink-soft);}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="brand">
+    <img src="assets/logo.jpg" alt="Logo Aghna Archery" style="width:36px;height:36px;border-radius:8px;object-fit:cover;">
+    <div class="brand-text">
+      <div class="name">Kalkulator Anak Panah</div>
+      <div class="tag">Aghna Archery Club — Tools Pembantu</div>
+    </div>
+  </div>
+  <a class="back-link" href="index.html">&#8592; Kembali ke situs utama</a>
+</header>
+
+<main>
+  <div class="intro">
+    <h1>Hitung setelan anak panah kamu</h1>
+    <p>Masukkan data busur dan komponen anak panah untuk mendapatkan estimasi panjang panah, spine, rekomendasi shaft, berat total, GPP, dan FOC. Tahap 1 dari rencana bertahap kalkulator anak panah Aghna Archery Club.</p>
+  </div>
+
+  <div class="layout">
+    <!-- ===== FORM ===== -->
+    <div class="card">
+      <h2>Data busur & panah</h2>
+      <div class="card-sub">Isi sesuai setelan busur dan komponen yang kamu pakai.</div>
+
+      <div class="field">
+        <label>Jenis busur</label>
+        <div class="segmented" id="bow-type-segmented">
+          <button type="button" data-value="Recurve" class="active">Recurve</button>
+          <button type="button" data-value="Compound">Compound</button>
+          <button type="button" data-value="Barebow">Barebow</button>
+        </div>
+      </div>
+
+      <div class="field-row">
+        <div class="field">
+          <label>Draw weight (lbs)</label>
+          <input type="number" id="input-draw-weight" value="34" min="10" step="0.5">
+        </div>
+        <div class="field">
+          <label>Draw length (inch)</label>
+          <input type="number" id="input-draw-length" value="28" min="18" step="0.25">
+        </div>
+      </div>
+
+      <div class="field">
+        <label>Safety margin (inch)</label>
+        <input type="number" id="input-margin" value="1.0" min="0" step="0.25">
+        <div class="hint">Terisi otomatis sesuai jenis busur (Recurve/Barebow +1.0", Compound +0.5"), boleh diubah manual.</div>
+      </div>
+
+      <div class="field-row">
+        <div class="field">
+          <label>Point weight (grain)</label>
+          <select id="input-point-weight">
+            <option value="80">80 gr</option>
+            <option value="90">90 gr</option>
+            <option value="100" selected>100 gr</option>
+            <option value="110">110 gr</option>
+            <option value="120">120 gr</option>
+          </select>
+        </div>
+        <div class="field">
+          <label>Insert weight (grain)</label>
+          <input type="number" id="input-insert-weight" value="10" min="0" step="0.5">
+        </div>
+      </div>
+
+      <div class="field-row">
+        <div class="field">
+          <label>Nock weight (grain)</label>
+          <input type="number" id="input-nock-weight" value="9" min="0" step="0.5">
+        </div>
+        <div class="field">
+          <label>Total vane/fletching (grain)</label>
+          <input type="number" id="input-vane-weight" value="15" min="0" step="0.5">
+        </div>
+      </div>
+
+      <div class="field">
+        <label>Kondisi menembak</label>
+        <div class="segmented" id="condition-segmented">
+          <button type="button" data-value="indoor" class="active">Indoor</button>
+          <button type="button" data-value="outdoor">Outdoor tenang</button>
+          <button type="button" data-value="wind">Outdoor berangin</button>
+        </div>
+        <div class="hint">Memengaruhi preferensi diameter shaft yang direkomendasikan.</div>
+      </div>
+
+      <button class="btn" onclick="hitungSemua()">Hitung</button>
+    </div>
+
+    <!-- ===== HASIL ===== -->
+    <div class="card">
+      <h2>Hasil perhitungan</h2>
+      <div class="card-sub">Estimasi berdasarkan input di sebelah kiri.</div>
+      <div id="result-area">
+        <div class="empty-result">Isi data di sebelah kiri, lalu tekan <strong>Hitung</strong> untuk melihat hasilnya di sini.</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="disclaimer">
+    <strong>Catatan:</strong> Estimasi spine, rekomendasi shaft, GPP, dan FOC pada kalkulator ini menggunakan pendekatan umum industri dan database contoh (belum lengkap/resmi dari tiap pabrikan). Untuk kepastian penuh, cocokkan dengan shaft selector resmi merek yang kamu pakai (misal Easton Shaft Selector) atau konsultasikan ke pelatih. Fitur Speed/kecepatan panah belum tersedia di tahap ini karena membutuhkan data chronograph riil per busur.
+  </div>
+</main>
+
+<footer>Aghna Archery Club &middot; Kalkulator Anak Panah — Tahap 1</footer>
+
+<script>
+// ============ Database contoh shaft (untuk demonstrasi awal) ============
+// Data GPI & diameter di sini adalah CONTOH untuk keperluan demonstrasi kalkulator,
+// belum tentu sama persis dengan spesifikasi resmi tiap pabrikan.
+const SHAFT_DB = [
+  { brand:'Easton', model:'Avance', spine:400, diameter:4.2, gpi:10.3 },
+  { brand:'Easton', model:'Avance', spine:500, diameter:4.2, gpi:9.5 },
+  { brand:'Easton', model:'Avance', spine:600, diameter:4.2, gpi:8.6 },
+  { brand:'Easton', model:'Avance', spine:700, diameter:4.2, gpi:7.8 },
+  { brand:'Easton', model:'Avance', spine:800, diameter:4.2, gpi:7.2 },
+  { brand:'Easton', model:'Avance', spine:900, diameter:4.2, gpi:6.5 },
+  { brand:'Easton', model:'Avance', spine:1000, diameter:4.2, gpi:5.8 },
+  { brand:'Easton', model:'Avance', spine:1100, diameter:4.2, gpi:5.2 },
+
+  { brand:'Skylon', model:'Radius', spine:400, diameter:4.2, gpi:10.1 },
+  { brand:'Skylon', model:'Radius', spine:500, diameter:4.2, gpi:9.3 },
+  { brand:'Skylon', model:'Radius', spine:600, diameter:4.2, gpi:8.4 },
+  { brand:'Skylon', model:'Radius', spine:700, diameter:4.2, gpi:7.6 },
+  { brand:'Skylon', model:'Radius', spine:800, diameter:4.2, gpi:7.0 },
+  { brand:'Skylon', model:'Radius', spine:900, diameter:4.2, gpi:6.3 },
+  { brand:'Skylon', model:'Radius', spine:1000, diameter:4.2, gpi:5.7 },
+  { brand:'Skylon', model:'Radius', spine:1100, diameter:4.2, gpi:5.1 },
+
+  { brand:'Avalon', model:'Classic', spine:400, diameter:4.2, gpi:10.4 },
+  { brand:'Avalon', model:'Classic', spine:500, diameter:4.2, gpi:9.6 },
+  { brand:'Avalon', model:'Classic', spine:600, diameter:4.2, gpi:8.7 },
+  { brand:'Avalon', model:'Classic', spine:700, diameter:4.2, gpi:7.9 },
+  { brand:'Avalon', model:'Classic', spine:800, diameter:4.2, gpi:7.3 },
+  { brand:'Avalon', model:'Classic', spine:900, diameter:4.2, gpi:6.6 },
+  { brand:'Avalon', model:'Classic', spine:1000, diameter:4.2, gpi:5.9 },
+  { brand:'Avalon', model:'Classic', spine:1100, diameter:4.2, gpi:5.3 },
+
+  { brand:'Fivics', model:'Five-X', spine:400, diameter:4.2, gpi:10.2 },
+  { brand:'Fivics', model:'Five-X', spine:500, diameter:4.2, gpi:9.4 },
+  { brand:'Fivics', model:'Five-X', spine:600, diameter:4.2, gpi:8.5 },
+  { brand:'Fivics', model:'Five-X', spine:700, diameter:4.2, gpi:7.7 },
+  { brand:'Fivics', model:'Five-X', spine:800, diameter:4.2, gpi:7.1 },
+  { brand:'Fivics', model:'Five-X', spine:900, diameter:4.2, gpi:6.4 },
+  { brand:'Fivics', model:'Five-X', spine:1000, diameter:4.2, gpi:5.8 },
+  { brand:'Fivics', model:'Five-X', spine:1100, diameter:4.2, gpi:5.2 },
+];
+
+// ============ Segmented control helper ============
+function setupSegmented(id, onChange){
+  const wrap = document.getElementById(id);
+  wrap.addEventListener('click', e=>{
+    const btn = e.target.closest('button');
+    if(!btn) return;
+    wrap.querySelectorAll('button').forEach(b=>b.classList.remove('active'));
+    btn.classList.add('active');
+    onChange(btn.dataset.value);
+  });
+}
+function getSegmentedValue(id){
+  return document.querySelector(`#${id} button.active`).dataset.value;
+}
+
+setupSegmented('bow-type-segmented', (value)=>{
+  const marginInput = document.getElementById('input-margin');
+  marginInput.value = value === 'Compound' ? 0.5 : 1.0;
+});
+
+setupSegmented('condition-segmented', ()=>{});
+
+// ============ Estimasi spine dasar berdasarkan draw weight efektif ============
+// Tabel referensi umum (perkiraan, bukan chart resmi pabrikan tertentu)
+const BASE_SPINE_TABLE = [
+  { max:20, spine:1400 },
+  { max:24, spine:1200 },
+  { max:28, spine:1000 },
+  { max:32, spine:900 },
+  { max:36, spine:800 },
+  { max:40, spine:700 },
+  { max:44, spine:650 },
+  { max:48, spine:600 },
+  { max:52, spine:550 },
+  { max:56, spine:500 },
+  { max:60, spine:450 },
+  { max:65, spine:400 },
+  { max:70, spine:350 },
+  { max:Infinity, spine:300 },
+];
+
+function lookupBaseSpine(effectiveDW){
+  for(const row of BASE_SPINE_TABLE){
+    if(effectiveDW <= row.max) return row.spine;
+  }
+  return 300;
+}
+
+function roundToNearest(value, step){
+  return Math.round(value/step) * step;
+}
+
+// ============ Hitung FOC & berat total untuk 1 shaft tertentu ============
+function computeForShaft(shaft, arrowLength, pointWeight, insertWeight, nockWeight, vaneWeight, drawWeight){
+  const shaftWeight = shaft.gpi * arrowLength;
+  const totalWeight = shaftWeight + pointWeight + insertWeight + nockWeight + vaneWeight;
+  const gpp = totalWeight / drawWeight;
+
+  const frontWeight = pointWeight + insertWeight; // posisi di ujung depan (jarak = arrowLength dari nock)
+  const rearWeight = nockWeight + vaneWeight;      // posisi di dekat nock (jarak = 0)
+  const shaftCenter = arrowLength / 2;
+
+  const balancePoint = (shaftWeight*shaftCenter + frontWeight*arrowLength + rearWeight*0) / totalWeight;
+  const centerOfArrow = arrowLength / 2;
+  const foc = ((balancePoint - centerOfArrow) / arrowLength) * 100;
+
+  return { shaftWeight, totalWeight, gpp, foc, balancePoint };
+}
+
+function gppBadge(gpp){
+  if(gpp < 5.5) return { text:'Terlalu ringan', cls:'warn' };
+  if(gpp > 9) return { text:'Berat (durable, agak lambat)', cls:'warn' };
+  return { text:'Ideal', cls:'ok' };
+}
+function focBadge(foc){
+  if(foc < 7) return { text:'Rendah', cls:'warn' };
+  if(foc > 15) return { text:'Tinggi (setelan hunting)', cls:'warn' };
+  return { text:'Ideal', cls:'ok' };
+}
+
+function escapeHtml(str){
+  const div = document.createElement('div');
+  div.textContent = str ?? '';
+  return div.innerHTML;
+}
+
+// ============ Diagram SVG panah dengan penanda titik keseimbangan (FOC) ============
+function renderArrowDiagram(balancePoint, arrowLength){
+  const width = 600, height = 90;
+  const trackX1 = 30, trackX2 = 570;
+  const trackWidth = trackX2 - trackX1;
+  const bpX = trackX1 + (balancePoint/arrowLength) * trackWidth;
+  const midX = trackX1 + trackWidth/2;
+
+  return `
+  <svg viewBox="0 0 ${width} ${height}" xmlns="http://www.w3.org/2000/svg">
+    <rect x="${trackX1+18}" y="40" width="${trackWidth-18-14}" height="8" rx="4" fill="#B8B8B8"/>
+    <rect x="${trackX1}" y="34" width="20" height="20" rx="4" fill="#141414"/>
+    <polygon points="${trackX2-14},30 ${trackX2+14},44 ${trackX2-14},58" fill="#141414"/>
+    <line x1="${midX}" y1="20" x2="${midX}" y2="70" stroke="#CCCCCC" stroke-width="1.5" stroke-dasharray="3,3"/>
+    <text x="${midX}" y="16" font-size="10" fill="#8a8a8a" text-anchor="middle" font-family="Inter, sans-serif">Tengah fisik</text>
+    <line x1="${bpX}" y1="15" x2="${bpX}" y2="75" stroke="#E8171C" stroke-width="2"/>
+    <circle cx="${bpX}" cy="44" r="6" fill="#E8171C"/>
+    <text x="${bpX}" y="88" font-size="11" fill="#E8171C" text-anchor="middle" font-weight="700" font-family="Inter, sans-serif">Titik keseimbangan</text>
+  </svg>`;
+}
+
+// ============ Fungsi utama ============
+function hitungSemua(){
+  const bowType = getSegmentedValue('bow-type-segmented');
+  const condition = getSegmentedValue('condition-segmented');
+
+  const drawWeight = parseFloat(document.getElementById('input-draw-weight').value) || 0;
+  const drawLength = parseFloat(document.getElementById('input-draw-length').value) || 0;
+  const margin = parseFloat(document.getElementById('input-margin').value) || 0;
+  const pointWeight = parseFloat(document.getElementById('input-point-weight').value) || 0;
+  const insertWeight = parseFloat(document.getElementById('input-insert-weight').value) || 0;
+  const nockWeight = parseFloat(document.getElementById('input-nock-weight').value) || 0;
+  const vaneWeight = parseFloat(document.getElementById('input-vane-weight').value) || 0;
+
+  if(drawWeight <= 0 || drawLength <= 0){
+    alert('Isi draw weight dan draw length dengan angka yang valid terlebih dahulu.');
+    return;
+  }
+
+  const arrowLength = drawLength + margin;
+  const effectiveDW = bowType === 'Compound' ? drawWeight : drawWeight + (drawLength - 28) * 2;
+
+  const baseSpine = lookupBaseSpine(effectiveDW);
+  const adjLength = -(arrowLength - 28) * 20;
+  const adjPoint = -((pointWeight - 100) / 25) * 15;
+  let estimatedSpine = roundToNearest(baseSpine + adjLength + adjPoint, 25);
+  estimatedSpine = Math.max(250, Math.min(1400, estimatedSpine));
+
+  const diameterPreference = condition === 'wind' ? 'kecil' : (condition === 'indoor' ? 'besar' : 'sedang');
+  const candidates = SHAFT_DB
+    .map(s=>({ ...s, distance: Math.abs(s.spine - estimatedSpine) }))
+    .sort((a,b)=> a.distance - b.distance)
+    .slice(0, 3);
+
+  const topShaft = candidates[0];
+  const calcTop = computeForShaft(topShaft, arrowLength, pointWeight, insertWeight, nockWeight, vaneWeight, drawWeight);
+
+  const gppB = gppBadge(calcTop.gpp);
+  const focB = focBadge(calcTop.foc);
+
+  const shaftListHtml = candidates.map((s, idx)=>{
+    const calc = computeForShaft(s, arrowLength, pointWeight, insertWeight, nockWeight, vaneWeight, drawWeight);
+    return `
+    <div class="shaft-item ${idx===0 ? 'top' : ''}">
+      <div class="shaft-rank">${idx+1}</div>
+      <div class="shaft-info">
+        <div class="shaft-name">${escapeHtml(s.brand)} ${escapeHtml(s.model)} — Spine ${s.spine}</div>
+        <div class="shaft-meta">Diameter ${s.diameter}mm &middot; GPI ${s.gpi}</div>
+      </div>
+      <div class="shaft-stats">
+        ${calc.totalWeight.toFixed(0)} gr<br>
+        GPP ${calc.gpp.toFixed(1)}<br>
+        FOC ${calc.foc.toFixed(1)}%
+      </div>
+    </div>`;
+  }).join('');
+
+  document.getElementById('result-area').innerHTML = `
+    <div class="arrow-diagram">
+      ${renderArrowDiagram(calcTop.balancePoint, arrowLength)}
+      <div class="diagram-caption">
+        <span>Nock (0")</span>
+        <span>Titik tengah fisik = ${(arrowLength/2).toFixed(2)}"</span>
+        <span>Point (${arrowLength.toFixed(2)}")</span>
+      </div>
+    </div>
+
+    <div class="result-grid">
+      <div class="result-stat">
+        <div class="label">Arrow length</div>
+        <div class="value">${arrowLength.toFixed(2)}"</div>
+      </div>
+      <div class="result-stat">
+        <div class="label">Estimasi spine (AMO)</div>
+        <div class="value">${estimatedSpine}</div>
+      </div>
+      <div class="result-stat">
+        <div class="label">Berat total panah</div>
+        <div class="value">${calcTop.totalWeight.toFixed(0)} gr</div>
+      </div>
+      <div class="result-stat">
+        <div class="label">GPP</div>
+        <div class="value">${calcTop.gpp.toFixed(1)}</div>
+        <span class="badge ${gppB.cls}">${gppB.text}</span>
+      </div>
+      <div class="result-stat" style="grid-column:span 2;">
+        <div class="label">FOC (Front of Center)</div>
+        <div class="value">${calcTop.foc.toFixed(1)}%</div>
+        <span class="badge ${focB.cls}">${focB.text}</span>
+      </div>
+    </div>
+
+    <h2 style="margin-top:22px;">Rekomendasi shaft</h2>
+    <div class="card-sub">Diurutkan dari spine paling mendekati estimasi. Kondisi: preferensi diameter ${diameterPreference}.</div>
+    <div class="shaft-list">${shaftListHtml}</div>
+  `;
+}
+</script>
+</body>
+</html>
