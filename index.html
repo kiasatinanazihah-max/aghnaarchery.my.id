@@ -207,7 +207,48 @@
     display:flex;
     align-items:center;
     gap:16px;
+    cursor:pointer;
+    transition:transform .12s, box-shadow .12s;
   }
+  .stat-card:hover{transform:translateY(-2px);box-shadow:0 8px 20px rgba(20,20,20,0.1);}
+
+  /* ---------- Dashboard hero / banner background ---------- */
+  .dashboard-hero{
+    position:relative;
+    min-height:200px;
+    border-radius:16px;
+    overflow:hidden;
+    margin-bottom:24px;
+    background-size:cover;
+    background-position:center;
+    background-color:var(--green-900);
+    display:flex;
+    align-items:flex-end;
+  }
+  .dashboard-hero::before{
+    content:"";
+    position:absolute;inset:0;
+    background:linear-gradient(180deg, rgba(13,13,13,0.15) 0%, rgba(13,13,13,0.82) 100%);
+  }
+  .dashboard-hero-content{
+    position:relative;z-index:1;
+    display:flex;justify-content:space-between;align-items:flex-end;
+    width:100%;padding:20px 22px;
+    gap:12px;flex-wrap:wrap;
+  }
+  .dashboard-hero-content h2{color:#fff;font-size:22px;margin:0;}
+  .dashboard-hero-content p{color:rgba(255,255,255,0.85);font-size:13px;margin:4px 0 0;}
+  .btn-change-bg{
+    background:rgba(255,255,255,0.14);
+    border:1px solid rgba(255,255,255,0.35);
+    color:#fff;
+    font-size:12px;font-weight:600;
+    padding:8px 14px;border-radius:999px;
+    cursor:pointer;
+    display:inline-flex;align-items:center;gap:6px;
+    white-space:nowrap;
+  }
+  .btn-change-bg:hover{background:rgba(255,255,255,0.24);}
   .ring{
     position:relative;
     width:64px;height:64px;flex-shrink:0;
@@ -550,28 +591,32 @@
 
   <!-- ================= DASHBOARD ================= -->
   <section class="page active" id="page-dashboard">
-    <div class="page-head">
-      <div>
-        <h2>Ringkasan klub</h2>
-        <p>Data tersimpan langsung di browser perangkat ini.</p>
+    <div class="dashboard-hero" id="dashboard-hero" style="background-image:url('assets/dashboard-bg.jpg');">
+      <div class="dashboard-hero-content">
+        <div>
+          <h2>Ringkasan klub</h2>
+          <p>Data tersinkron otomatis untuk semua pengunjung.</p>
+        </div>
+        <label class="btn-change-bg admin-only" for="dashboard-bg-input">&#128247; Ganti background</label>
+        <input type="file" id="dashboard-bg-input" accept="image/*" style="display:none;" onchange="handleDashboardBgSelected(event)">
       </div>
     </div>
     <div class="stats">
-      <div class="stat-card">
+      <div class="stat-card" onclick="goToPage('anggota')" title="Lihat halaman Anggota">
         <div class="ring"><span id="stat-anggota">0</span></div>
         <div>
           <div class="stat-label">Total anggota</div>
           <div class="stat-value" id="stat-anggota-label">0 pemanah</div>
         </div>
       </div>
-      <div class="stat-card">
+      <div class="stat-card" onclick="goToPage('jadwal')" title="Lihat halaman Jadwal">
         <div class="ring"><span id="stat-jadwal">0</span></div>
         <div>
           <div class="stat-label">Jadwal terdaftar</div>
           <div class="stat-value" id="stat-jadwal-label">0 kegiatan</div>
         </div>
       </div>
-      <div class="stat-card">
+      <div class="stat-card" onclick="goToPage('latihan')" title="Lihat halaman Latihan">
         <div class="ring"><span id="stat-menit">0</span></div>
         <div>
           <div class="stat-label">Latihan 7 hari terakhir</div>
@@ -935,6 +980,13 @@ db.collection('galeri').onSnapshot(snapshot=>{
   DATA.galeri = snapshot.docs.map(doc=>({ id: doc.id, ...doc.data() }));
   renderGaleri();
 }, err=>console.error('Gagal memuat data galeri:', err));
+
+// Background dashboard kustom (kalau admin pernah menggantinya) — kalau belum ada, tetap pakai gambar default dari assets/
+db.collection('settings').doc('dashboard').onSnapshot(doc=>{
+  if(doc.exists && doc.data().background){
+    document.getElementById('dashboard-hero').style.backgroundImage = `url("${doc.data().background}")`;
+  }
+}, err=>console.error('Gagal memuat background dashboard:', err));
 
 // ============ Navigasi ============
 document.getElementById('nav').addEventListener('click', (e)=>{
@@ -1389,6 +1441,32 @@ function handleGaleriFotoSelected(event){
       currentGaleriFotoData = canvas.toDataURL('image/jpeg', 0.72);
       document.getElementById('galeri-foto-preview').innerHTML =
         `<img src="${currentGaleriFotoData}" alt="Preview" style="width:100%;height:100%;object-fit:cover;">`;
+    };
+    img.src = e.target.result;
+  };
+  reader.readAsDataURL(file);
+}
+
+// Ganti background dashboard: kompres gambar lalu simpan ke Firestore agar tersinkron ke semua pengunjung
+function handleDashboardBgSelected(event){
+  const file = event.target.files[0];
+  if(!file) return;
+
+  const reader = new FileReader();
+  reader.onload = function(e){
+    const img = new Image();
+    img.onload = function(){
+      const maxWidth = 1200;
+      let w = img.width, h = img.height;
+      if(w > maxWidth){ h = Math.round(h * (maxWidth / w)); w = maxWidth; }
+
+      const canvas = document.createElement('canvas');
+      canvas.width = w; canvas.height = h;
+      canvas.getContext('2d').drawImage(img, 0, 0, w, h);
+
+      const bgData = canvas.toDataURL('image/jpeg', 0.7);
+      db.collection('settings').doc('dashboard').set({ background: bgData })
+        .catch(err=>alert('Gagal mengganti background. Cek koneksi internet.\n'+err.message));
     };
     img.src = e.target.result;
   };
