@@ -1,0 +1,1072 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Skor Panahan — Buku Catatan Digital</title>
+<style>
+  :root{
+    --paper:#F1ECDE;
+    --paper-dark:#E5DEC9;
+    --ink:#1E2A22;
+    --ink-soft:#4B5A4E;
+    --field:#1F3B2C;
+    --field-deep:#152A1F;
+    --gold:#C9972E;
+    --gold-deep:#9C7419;
+    --ring-white:#F7F5EF;
+    --ring-black:#232323;
+    --ring-blue:#2B5C8A;
+    --ring-red:#B23A2F;
+    --ring-gold:#D9A93B;
+    --line:#c9bd9a;
+    --danger:#9C2B22;
+  }
+  *{box-sizing:border-box;-webkit-tap-highlight-color:transparent;}
+  html,body{margin:0;padding:0;}
+  body{
+    background:var(--paper);
+    color:var(--ink);
+    font-family:Georgia,"Iowan Old Style","Times New Roman",serif;
+    min-height:100vh;
+    padding-bottom:90px;
+  }
+  .mono{font-family:"SF Mono","SFMono-Regular","Courier New",monospace;}
+  header.top{
+    background:var(--field);
+    color:var(--paper);
+    padding:18px 16px 16px;
+    position:sticky;top:0;z-index:20;
+    border-bottom:3px solid var(--gold);
+  }
+  header.top .brand{display:flex;align-items:center;gap:10px;}
+  header.top .ring-logo{
+    width:34px;height:34px;border-radius:50%;
+    background:repeating-radial-gradient(circle at center,
+      var(--ring-gold) 0 4px, var(--ring-red) 4px 8px,
+      var(--ring-blue) 8px 12px, var(--ring-black) 12px 16px,
+      var(--ring-white) 16px 17px);
+    flex:none;border:1px solid rgba(255,255,255,.25);
+  }
+  header.top h1{font-size:19px;margin:0;letter-spacing:.3px;font-weight:700;}
+  header.top .sub{
+    font-family:"SF Mono","Courier New",monospace;
+    font-size:11px;color:#CFE0D2;opacity:.85;letter-spacing:.5px;text-transform:uppercase;margin-top:2px;
+  }
+  nav.tabs{
+    display:flex;gap:0;margin-top:14px;
+    background:var(--field-deep);
+    border-radius:8px;overflow:hidden;
+    border:1px solid rgba(255,255,255,.12);
+  }
+  nav.tabs button{
+    flex:1;padding:10px 4px;background:transparent;border:none;
+    color:#B9C9BC;font-family:inherit;font-size:13px;font-weight:600;
+    cursor:pointer;letter-spacing:.2px;
+  }
+  nav.tabs button.active{background:var(--gold);color:var(--field-deep);}
+  main{max-width:640px;margin:0 auto;padding:16px;}
+  .card{
+    background:var(--paper);
+    border:1px solid var(--line);
+    border-radius:10px;
+    padding:16px;
+    margin-bottom:14px;
+    box-shadow:0 1px 0 rgba(0,0,0,.04);
+  }
+  .card h2{
+    margin:0 0 12px;font-size:16px;color:var(--field);
+    border-bottom:2px solid var(--gold);padding-bottom:8px;
+  }
+  label.field-label{
+    display:block;font-size:12px;text-transform:uppercase;letter-spacing:.6px;
+    color:var(--ink-soft);margin:14px 0 6px;font-family:"SF Mono","Courier New",monospace;
+  }
+  label.field-label:first-child{margin-top:0;}
+  .choice-grid{display:flex;flex-wrap:wrap;gap:8px;}
+  .choice{
+    padding:9px 14px;border:1.5px solid var(--line);border-radius:20px;
+    background:var(--paper-dark);cursor:pointer;font-size:14px;color:var(--ink);
+    font-family:inherit;user-select:none;
+  }
+  .choice.selected{background:var(--field);border-color:var(--field);color:var(--paper);}
+  .choice.selected.gold{background:var(--gold);border-color:var(--gold-deep);color:var(--field-deep);}
+  .row-inline{display:flex;gap:10px;align-items:center;}
+  input[type=number]{
+    width:70px;padding:8px 10px;border:1.5px solid var(--line);border-radius:6px;
+    font-family:inherit;font-size:15px;background:var(--paper-dark);color:var(--ink);
+  }
+  .btn{
+    display:inline-block;padding:12px 18px;border-radius:8px;border:none;
+    font-family:inherit;font-weight:700;font-size:14px;cursor:pointer;letter-spacing:.2px;
+  }
+  .btn-primary{background:var(--field);color:var(--paper);width:100%;}
+  .btn-primary:disabled{opacity:.4;}
+  .btn-ghost{background:transparent;color:var(--field);border:1.5px solid var(--field);}
+  .btn-danger{background:transparent;color:var(--danger);border:1.5px solid var(--danger);}
+  .btn-sm{padding:8px 12px;font-size:12px;}
+  .hint{font-size:12px;color:var(--ink-soft);margin-top:8px;line-height:1.5;}
+  .checkline{display:flex;align-items:center;gap:8px;font-size:13px;margin-top:12px;}
+  .face-preview{
+    margin-top:12px;padding:10px 12px;background:var(--paper-dark);border-radius:8px;
+    font-family:"SF Mono","Courier New",monospace;font-size:12px;line-height:1.7;color:var(--ink);
+  }
+
+  /* Scoring screen */
+  .scorehead{display:flex;justify-content:space-between;align-items:flex-end;margin-bottom:6px;flex-wrap:wrap;gap:6px;}
+  .scorehead .division-tag{
+    font-family:"SF Mono","Courier New",monospace;font-size:11px;
+    text-transform:uppercase;letter-spacing:.5px;color:var(--ink-soft);
+  }
+  .scorehead .distance-now{font-size:26px;font-weight:700;color:var(--field);font-family:"SF Mono","Courier New",monospace;}
+  .face-line{font-family:"SF Mono","Courier New",monospace;font-size:11px;color:var(--gold-deep);margin-bottom:10px;}
+  .progress-line{
+    font-family:"SF Mono","Courier New",monospace;font-size:12px;color:var(--ink-soft);
+    display:flex;justify-content:space-between;margin-bottom:10px;
+  }
+  .arrow-slots{display:flex;gap:6px;margin-bottom:14px;flex-wrap:wrap;}
+  .slot{
+    width:44px;height:44px;border-radius:50%;
+    display:flex;align-items:center;justify-content:center;
+    font-family:"SF Mono","Courier New",monospace;font-weight:700;font-size:14px;
+    border:2px dashed var(--line);color:var(--ink-soft);background:var(--paper-dark);
+  }
+  .slot.filled{border-style:solid;}
+  .ring-10,.ring-9{background:var(--ring-gold);color:#3b2c05;border-color:var(--gold-deep);}
+  .ring-8,.ring-7{background:var(--ring-red);color:#fff;border-color:#7c231b;}
+  .ring-6,.ring-5{background:var(--ring-blue);color:#fff;border-color:#173a58;}
+  .ring-4,.ring-3{background:var(--ring-black);color:#fff;border-color:#000;}
+  .ring-2,.ring-1{background:var(--ring-white);color:#222;border-color:#999;}
+  .ring-M{background:var(--paper);color:var(--danger);border-color:var(--danger);}
+
+  .keypad{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:14px;}
+  .key{padding:16px 0;border-radius:8px;border:none;font-weight:700;font-size:17px;
+    font-family:"SF Mono","Courier New",monospace;cursor:pointer;}
+  .key:active{transform:scale(.95);}
+  .key.key-hidden{display:none;}
+  .key-x{background:var(--gold);color:#3b2c05;border:2px solid var(--gold-deep);}
+  .key-10,.key-9{background:var(--ring-gold);color:#3b2c05;}
+  .key-8,.key-7{background:var(--ring-red);color:#fff;}
+  .key-6,.key-5{background:var(--ring-blue);color:#fff;}
+  .key-4,.key-3{background:var(--ring-black);color:#fff;}
+  .key-2,.key-1{background:var(--ring-white);color:#222;border:1.5px solid #999;}
+  .key-m{background:transparent;color:var(--danger);border:2px solid var(--danger);}
+
+  .totals-strip{
+    display:flex;justify-content:space-between;background:var(--field);color:var(--paper);
+    border-radius:8px;padding:10px 14px;margin-bottom:12px;font-family:"SF Mono","Courier New",monospace;
+    font-size:13px;flex-wrap:wrap;gap:6px;
+  }
+  .totals-strip b{font-size:16px;color:var(--gold);}
+  .actions-row{display:flex;gap:8px;flex-wrap:wrap;}
+  .actions-row .btn{flex:1;min-width:120px;}
+
+  table.ends-table{width:100%;border-collapse:collapse;font-family:"SF Mono","Courier New",monospace;font-size:12.5px;}
+  table.ends-table th{text-align:left;color:var(--ink-soft);font-weight:600;padding:6px 4px;border-bottom:1.5px solid var(--line);}
+  table.ends-table td{padding:6px 4px;border-bottom:1px solid var(--line);vertical-align:middle;}
+  table.ends-table td.tot{font-weight:700;color:var(--field);}
+  .end-photo-thumb{width:28px;height:28px;border-radius:4px;object-fit:cover;border:1px solid var(--line);cursor:pointer;vertical-align:middle;}
+
+  /* History */
+  .hist-item{display:flex;justify-content:space-between;align-items:center;padding:12px 4px;border-bottom:1px solid var(--line);cursor:pointer;}
+  .hist-item:last-child{border-bottom:none;}
+  .hist-item .meta{font-size:12px;color:var(--ink-soft);font-family:"SF Mono","Courier New",monospace;}
+  .hist-item .score{font-size:20px;font-weight:700;color:var(--field);font-family:"SF Mono","Courier New",monospace;}
+  .badge{
+    display:inline-block;padding:2px 8px;border-radius:10px;font-size:10px;
+    font-family:"SF Mono","Courier New",monospace;text-transform:uppercase;letter-spacing:.4px;margin-right:6px;
+  }
+  .badge.Recurve{background:#2B5C8A;color:#fff;}
+  .badge.Compound{background:#B23A2F;color:#fff;}
+  .badge.Standard{background:#3E6B4A;color:#fff;}
+  .badge.ring{background:var(--gold);color:var(--field-deep);}
+
+  .empty{text-align:center;padding:40px 10px;color:var(--ink-soft);}
+  .empty .big{font-size:38px;margin-bottom:10px;}
+
+  footer.dock{
+    position:fixed;bottom:0;left:0;right:0;
+    background:var(--field-deep);border-top:1px solid rgba(255,255,255,.15);
+    padding:10px 16px;display:flex;gap:8px;z-index:20;
+  }
+  footer.dock button{
+    flex:1;background:transparent;border:1.5px solid var(--gold);color:var(--gold);
+    padding:10px;border-radius:8px;font-family:"SF Mono","Courier New",monospace;font-size:12px;font-weight:700;cursor:pointer;
+  }
+  #importFile{display:none;}
+  .view{display:none;}
+  .view.active{display:block;}
+  .modal-overlay{position:fixed;inset:0;background:rgba(21,42,31,.72);z-index:30;display:flex;align-items:center;justify-content:center;padding:16px;overflow:auto;}
+  .modal-overlay.hidden{display:none;}
+  .modal-box{background:var(--paper);border-radius:10px;padding:18px;max-width:460px;width:100%;border:2px solid var(--gold);margin:auto;}
+  .modal-box h3{margin-top:0;color:var(--field);}
+  .toast{
+    position:fixed;bottom:96px;left:50%;transform:translateX(-50%);
+    background:var(--field);color:var(--paper);padding:10px 18px;border-radius:20px;
+    font-size:13px;z-index:40;box-shadow:0 4px 12px rgba(0,0,0,.3);opacity:0;pointer-events:none;transition:opacity .25s;max-width:85vw;text-align:center;
+  }
+  .toast.show{opacity:1;}
+
+  #photo-canvas-wrap{overflow:auto;max-height:48vh;border:1px solid var(--line);border-radius:8px;margin-bottom:10px;background:#111;-webkit-overflow-scrolling:touch;}
+  #photo-canvas{display:block;touch-action:manipulation;}
+  .arrow-tag{
+    display:inline-flex;align-items:center;gap:4px;background:var(--paper-dark);
+    border:1px solid var(--line);border-radius:14px;padding:3px 8px 3px 10px;margin:2px 3px 2px 0;
+    font-family:"SF Mono","Courier New",monospace;font-size:12px;
+  }
+  .arrow-tag button{border:none;background:none;color:var(--danger);cursor:pointer;font-weight:700;font-size:13px;padding:0 2px;}
+  .zoom-row{display:flex;align-items:center;gap:8px;margin-bottom:10px;}
+  .zoom-row input[type=range]{flex:1;}
+</style>
+</head>
+<body>
+
+<header class="top">
+  <div class="brand">
+    <div class="ring-logo"></div>
+    <div>
+      <h1>Skor Panahan</h1>
+      <div class="sub">buku catatan digital · offline</div>
+    </div>
+  </div>
+  <nav class="tabs">
+    <button data-view="new" class="active">Ronde Baru</button>
+    <button data-view="score">Mencatat</button>
+    <button data-view="history">Riwayat</button>
+  </nav>
+</header>
+
+<main>
+
+  <!-- VIEW: NEW ROUND -->
+  <section id="view-new" class="view active">
+    <div class="card">
+      <h2>Atur Ronde</h2>
+
+      <label class="field-label">Divisi</label>
+      <div class="choice-grid" id="pick-division">
+        <div class="choice" data-val="Standard Bow">Standard Bow</div>
+        <div class="choice" data-val="Recurve">Recurve</div>
+        <div class="choice" data-val="Compound">Compound</div>
+      </div>
+
+      <label class="field-label">Jarak (bisa pilih lebih dari satu)</label>
+      <div class="choice-grid" id="pick-distance">
+        <div class="choice gold" data-val="70">70 m</div>
+        <div class="choice gold" data-val="60">60 m</div>
+        <div class="choice gold" data-val="50">50 m</div>
+        <div class="choice gold" data-val="40">40 m</div>
+        <div class="choice gold" data-val="30">30 m</div>
+        <div class="choice gold" data-val="20">20 m</div>
+        <div class="choice gold" data-val="15">15 m</div>
+      </div>
+      <div class="hint">Jarak akan ditembak berurutan dari yang terjauh ke yang terdekat.</div>
+
+      <label class="checkline">
+        <input type="checkbox" id="chk-sixring">
+        Target 6-ring (skor 5–10, biasanya untuk Compound)
+      </label>
+      <div class="hint">Otomatis tercentang saat memilih Compound — matikan/nyalakan manual kalau kondisi latihanmu berbeda.</div>
+
+      <div class="face-preview" id="face-preview"></div>
+
+      <label class="field-label">Anak panah / end</label>
+      <div class="choice-grid" id="pick-arrows">
+        <div class="choice" data-val="3">3 anak panah</div>
+        <div class="choice" data-val="6">6 anak panah</div>
+      </div>
+
+      <label class="field-label">Jumlah end per jarak</label>
+      <div class="row-inline">
+        <input type="number" id="input-ends" value="6" min="1" max="30">
+        <span class="hint" style="margin:0;">end</span>
+      </div>
+
+      <button class="btn btn-primary" id="btn-start" style="margin-top:20px;">Mulai Mencatat Skor</button>
+    </div>
+  </section>
+
+  <!-- VIEW: SCORING -->
+  <section id="view-score" class="view">
+    <div id="score-empty" class="card empty">
+      <div class="big">🎯</div>
+      <div>Belum ada ronde berjalan.<br>Buat ronde baru untuk mulai mencatat skor.</div>
+    </div>
+
+    <div id="score-active" style="display:none;">
+      <div class="card">
+        <div class="scorehead">
+          <div>
+            <div class="division-tag" id="sc-division">—</div>
+            <div class="distance-now" id="sc-distance">— m</div>
+          </div>
+          <div style="text-align:right;">
+            <div class="division-tag">Jarak <span id="sc-leg-idx">1</span>/<span id="sc-leg-total">1</span></div>
+          </div>
+        </div>
+        <div class="face-line" id="sc-face-info"></div>
+        <div class="progress-line">
+          <span>End <span id="sc-end-idx">1</span> / <span id="sc-end-total">6</span></span>
+          <span>Anak panah <span id="sc-arrow-idx">0</span> / <span id="sc-arrow-total">6</span></span>
+        </div>
+        <div class="arrow-slots" id="sc-slots"></div>
+
+        <div class="keypad" id="sc-keypad">
+          <button class="key key-x" data-v="X">X</button>
+          <button class="key key-10" data-v="10">10</button>
+          <button class="key key-9" data-v="9">9</button>
+          <button class="key key-8" data-v="8">8</button>
+          <button class="key key-7" data-v="7">7</button>
+          <button class="key key-6" data-v="6">6</button>
+          <button class="key key-5" data-v="5">5</button>
+          <button class="key key-4" data-v="4">4</button>
+          <button class="key key-3" data-v="3">3</button>
+          <button class="key key-2" data-v="2">2</button>
+          <button class="key key-1" data-v="1">1</button>
+          <button class="key key-m" data-v="M">M</button>
+        </div>
+
+        <button class="btn btn-ghost" id="btn-open-photo" style="width:100%;margin-bottom:12px;">📷 Skor dari Foto Target</button>
+
+        <div class="totals-strip">
+          <span>End: <b id="sc-end-total-score">0</b></span>
+          <span>Jarak ini: <b id="sc-leg-total-score">0</b></span>
+          <span>Ronde: <b id="sc-round-total-score">0</b></span>
+        </div>
+
+        <div class="actions-row">
+          <button class="btn btn-ghost btn-sm" id="btn-undo">↺ Batalkan Anak Panah</button>
+          <button class="btn btn-danger btn-sm" id="btn-cancel-round">✕ Batalkan Ronde</button>
+        </div>
+      </div>
+
+      <div class="card">
+        <h2>Catatan End</h2>
+        <table class="ends-table">
+          <thead><tr><th>End</th><th>Skor</th><th>Total</th><th></th></tr></thead>
+          <tbody id="sc-ends-body"></tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+
+  <!-- VIEW: HISTORY -->
+  <section id="view-history" class="view">
+    <div class="card">
+      <h2>Riwayat Ronde</h2>
+      <div id="hist-list"></div>
+    </div>
+  </section>
+
+  <!-- VIEW: DETAIL -->
+  <section id="view-detail" class="view">
+    <div class="card">
+      <button class="btn btn-ghost btn-sm" id="btn-back-hist" style="margin-bottom:12px;">← Kembali ke Riwayat</button>
+      <h2 id="det-title">Detail Ronde</h2>
+      <div id="det-body"></div>
+      <button class="btn btn-danger btn-sm" id="btn-delete-round" style="margin-top:14px;">Hapus Ronde Ini</button>
+    </div>
+  </section>
+
+</main>
+
+<footer class="dock">
+  <button id="btn-export">⬇ Ekspor Data</button>
+  <button id="btn-import-trigger">⬆ Impor Data</button>
+  <input type="file" id="importFile" accept="application/json">
+</footer>
+
+<div class="toast" id="toast"></div>
+
+<div class="modal-overlay hidden" id="finish-modal">
+  <div class="modal-box">
+    <h3 id="finish-title">Jarak Selesai</h3>
+    <p id="finish-body"></p>
+    <button class="btn btn-primary" id="finish-continue">Lanjut</button>
+  </div>
+</div>
+
+<!-- PHOTO SCORING MODAL -->
+<div class="modal-overlay hidden" id="photo-modal">
+  <div class="modal-box" style="max-width:520px;">
+    <h3>📷 Skor dari Foto Target</h3>
+    <div id="photo-step-text" class="hint" style="margin-bottom:10px;"></div>
+
+    <input type="file" id="photo-input" accept="image/*" capture="environment">
+
+    <div id="photo-picker" style="text-align:center;padding:16px 0;">
+      <button class="btn btn-primary" id="btn-take-photo">Ambil / Pilih Foto Target</button>
+      <div class="hint">Foto tegak lurus ke muka target, pastikan seluruh lingkaran skor terlihat.</div>
+    </div>
+
+    <div id="photo-workspace" style="display:none;">
+      <div id="photo-canvas-wrap"><canvas id="photo-canvas"></canvas></div>
+      <div class="zoom-row">
+        <span class="hint" style="margin:0;white-space:nowrap;">🔍 Perbesar</span>
+        <input type="range" id="photo-zoom" min="1" max="3" step="0.1" value="1">
+      </div>
+      <div id="photo-arrow-list"></div>
+      <div class="actions-row" style="margin-bottom:8px;">
+        <button class="btn btn-ghost btn-sm" id="btn-photo-undo">↺ Titik Terakhir</button>
+        <button class="btn btn-ghost btn-sm" id="btn-photo-reset">⟲ Ulangi Kalibrasi</button>
+      </div>
+      <button class="btn btn-ghost btn-sm" id="btn-photo-addmiss" style="width:100%;margin-bottom:8px;">+ Tambah Panah Miss (di luar target)</button>
+      <label style="display:flex;align-items:center;gap:8px;font-size:12px;color:var(--ink-soft);margin-bottom:12px;">
+        <input type="checkbox" id="chk-save-photo"> Simpan foto kecil sebagai bukti (menambah ukuran file ekspor)
+      </label>
+      <div class="actions-row">
+        <button class="btn btn-danger btn-sm" id="btn-photo-cancel">Batal</button>
+        <button class="btn btn-primary btn-sm" id="btn-photo-confirm" disabled>Gunakan Skor Ini</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- PHOTO VIEWER (for saved thumbnails) -->
+<div class="modal-overlay hidden" id="view-photo-modal">
+  <div class="modal-box" style="max-width:90vw;padding:8px;">
+    <img id="view-photo-img" style="width:100%;border-radius:6px;display:block;">
+    <button class="btn btn-ghost btn-sm" id="btn-close-view-photo" style="margin-top:10px;width:100%;">Tutup</button>
+  </div>
+</div>
+
+<script>
+(function(){
+  "use strict";
+
+  // ---------- State ----------
+  var sessions = [];      // finished/in-progress rounds, persisted only via export/import
+  var current = null;     // active round object while scoring
+
+  var RING_CLASS = {X:'ring-10',10:'ring-10',9:'ring-9',8:'ring-8',7:'ring-7',6:'ring-6',5:'ring-5',4:'ring-4',3:'ring-3',2:'ring-2',1:'ring-1',M:'ring-M'};
+
+  function scoreValue(v){ return v==='M' ? 0 : (v==='X' ? 10 : parseInt(v,10)); }
+  function divisionShort(d){ return d==='Standard Bow' ? 'Standard' : d; }
+
+  // ---------- Target face rules ----------
+  // X-ring is always half the diameter of the 10-ring (World Archery rule, scale-invariant).
+  // Full 10-ring face: ring n outer radius fraction of face radius = (11-n)/10
+  // 6-ring face (compound, scores 5-10): outer edge = old ring-5 boundary, so
+  // ring n outer radius fraction = (11-n)/6 for n = 5..10
+  function recommendedFaceSize(sixRing, distance){
+    if(sixRing){ return distance>=50 ? 122 : 80; }
+    if(distance>=50) return 122;
+    if(distance>=30) return 80;
+    return 60;
+  }
+  function faceLabel(sixRing, distance){
+    var size = recommendedFaceSize(sixRing, distance);
+    var ringDesc = sixRing ? '6 ring · skor 5–10 + X' : '10 ring penuh · skor 1–10 + X';
+    return size + ' cm — ' + ringDesc;
+  }
+  function scoreFromRadius(rNorm, sixRing){
+    if(sixRing){
+      var xf = (1/6)/2;
+      if(rNorm<=xf) return 'X';
+      for(var n=10;n>=5;n--){ if(rNorm <= (11-n)/6) return String(n); }
+      return 'M';
+    } else {
+      var xf2 = 0.05;
+      if(rNorm<=xf2) return 'X';
+      for(var n2=10;n2>=1;n2--){ if(rNorm <= (11-n2)/10) return String(n2); }
+      return 'M';
+    }
+  }
+
+  // ---------- Navigation ----------
+  var tabButtons = document.querySelectorAll('nav.tabs button');
+  tabButtons.forEach(function(btn){
+    btn.addEventListener('click', function(){ showView(btn.getAttribute('data-view')); });
+  });
+
+  function showView(name){
+    document.querySelectorAll('.view').forEach(function(v){ v.classList.remove('active'); });
+    document.getElementById('view-'+name).classList.add('active');
+    tabButtons.forEach(function(b){ b.classList.toggle('active', b.getAttribute('data-view')===name); });
+    if(name==='history') renderHistory();
+    if(name==='score') renderScoreScreen();
+  }
+
+  function toast(msg){
+    var t = document.getElementById('toast');
+    t.textContent = msg;
+    t.classList.add('show');
+    setTimeout(function(){ t.classList.remove('show'); }, 2400);
+  }
+
+  // ---------- New round form ----------
+  var chosenDivision = null;
+  var chosenDistances = [];
+  var chosenArrows = null;
+  var chosenSixRing = false;
+
+  document.getElementById('pick-division').addEventListener('click', function(e){
+    var el = e.target.closest('.choice'); if(!el) return;
+    document.querySelectorAll('#pick-division .choice').forEach(function(c){ c.classList.remove('selected'); });
+    el.classList.add('selected');
+    chosenDivision = el.getAttribute('data-val');
+    var chk = document.getElementById('chk-sixring');
+    chk.checked = (chosenDivision === 'Compound');
+    chosenSixRing = chk.checked;
+    renderFaceInfo();
+    validateStart();
+  });
+
+  document.getElementById('chk-sixring').addEventListener('change', function(e){
+    chosenSixRing = e.target.checked;
+    renderFaceInfo();
+  });
+
+  document.getElementById('pick-distance').addEventListener('click', function(e){
+    var el = e.target.closest('.choice'); if(!el) return;
+    var val = parseInt(el.getAttribute('data-val'),10);
+    el.classList.toggle('selected');
+    if(el.classList.contains('selected')){
+      if(chosenDistances.indexOf(val)===-1) chosenDistances.push(val);
+    } else {
+      chosenDistances = chosenDistances.filter(function(d){ return d!==val; });
+    }
+    renderFaceInfo();
+    validateStart();
+  });
+
+  document.getElementById('pick-arrows').addEventListener('click', function(e){
+    var el = e.target.closest('.choice'); if(!el) return;
+    document.querySelectorAll('#pick-arrows .choice').forEach(function(c){ c.classList.remove('selected'); });
+    el.classList.add('selected');
+    chosenArrows = parseInt(el.getAttribute('data-val'),10);
+    validateStart();
+  });
+
+  function renderFaceInfo(){
+    var box = document.getElementById('face-preview');
+    if(chosenDistances.length===0){ box.innerHTML = '<span class="hint" style="margin:0;">Pilih jarak untuk melihat rekomendasi target.</span>'; return; }
+    var sorted = chosenDistances.slice().sort(function(a,b){ return b-a; });
+    var lines = sorted.map(function(d){ return d+' m &rarr; '+faceLabel(chosenSixRing, d); });
+    box.innerHTML = '<b>Rekomendasi target:</b><br>' + lines.join('<br>') +
+      '<br><span style="opacity:.75;">*panduan umum, dapat berbeda menurut penyelenggara/klub.</span>';
+  }
+  renderFaceInfo();
+
+  function validateStart(){
+    var ok = chosenDivision && chosenDistances.length>0 && chosenArrows;
+    document.getElementById('btn-start').disabled = !ok;
+  }
+  document.getElementById('btn-start').disabled = true;
+
+  document.getElementById('btn-start').addEventListener('click', function(){
+    var endsPerLeg = parseInt(document.getElementById('input-ends').value,10) || 6;
+    var distancesSorted = chosenDistances.slice().sort(function(a,b){ return b-a; });
+    current = {
+      id: 'r'+Date.now(),
+      date: new Date().toISOString(),
+      division: chosenDivision,
+      sixRing: chosenSixRing,
+      arrowsPerEnd: chosenArrows,
+      endsPerLeg: endsPerLeg,
+      legs: distancesSorted.map(function(dist){ return { distance: dist, ends: [] }; }),
+      legIndex: 0,
+      endArrows: [],
+      pendingPhotoThumb: null,
+      finished: false
+    };
+    toast('Ronde dimulai — selamat memanah!');
+    showView('score');
+  });
+
+  // ---------- Scoring ----------
+  function updateKeypadForRingType(sixRing){
+    ['4','3','2','1'].forEach(function(v){
+      var btn = document.querySelector('#sc-keypad .key[data-v="'+v+'"]');
+      if(btn) btn.classList.toggle('key-hidden', !!sixRing);
+    });
+  }
+
+  document.getElementById('sc-keypad').addEventListener('click', function(e){
+    var key = e.target.closest('.key'); if(!key || key.classList.contains('key-hidden') || !current) return;
+    var v = key.getAttribute('data-v');
+    if(current.endArrows.length >= current.arrowsPerEnd) return;
+    current.endArrows.push(v);
+    renderScoreScreen();
+    if(current.endArrows.length === current.arrowsPerEnd){ setTimeout(completeEnd, 250); }
+  });
+
+  document.getElementById('btn-undo').addEventListener('click', function(){
+    if(!current) return;
+    if(current.endArrows.length>0){
+      current.endArrows.pop();
+    } else {
+      var leg = current.legs[current.legIndex];
+      if(leg && leg.ends.length>0){
+        var popped = leg.ends.pop();
+        current.endArrows = popped.arrows;
+      }
+    }
+    renderScoreScreen();
+  });
+
+  document.getElementById('btn-cancel-round').addEventListener('click', function(){
+    if(confirm('Batalkan ronde yang sedang berjalan? Data yang belum diekspor akan hilang.')){
+      current = null;
+      renderScoreScreen();
+    }
+  });
+
+  function completeEnd(){
+    var leg = current.legs[current.legIndex];
+    var thumb = current.pendingPhotoThumb || null;
+    current.pendingPhotoThumb = null;
+    leg.ends.push({ arrows: current.endArrows, photo: thumb });
+    current.endArrows = [];
+    if(leg.ends.length >= current.endsPerLeg){
+      if(current.legIndex < current.legs.length - 1){
+        var finishedDist = leg.distance;
+        var nextDist = current.legs[current.legIndex+1].distance;
+        openFinishModal(
+          'Jarak ' + finishedDist + ' m selesai',
+          'Total jarak ini: ' + legTotal(leg) + ' poin. Lanjut ke jarak berikutnya, ' + nextDist + ' m.',
+          function(){ current.legIndex++; renderScoreScreen(); }
+        );
+      } else {
+        current.finished = true;
+        sessions.push(current);
+        var roundTotal = roundTotalScore(current);
+        openFinishModal(
+          'Ronde Selesai 🎯',
+          'Total skor ronde: ' + roundTotal + ' poin dari ' + totalArrowsInRound(current) + ' anak panah. Jangan lupa ekspor data agar tidak hilang.',
+          function(){ current = null; showView('history'); }
+        );
+      }
+    } else {
+      renderScoreScreen();
+    }
+  }
+
+  function openFinishModal(title, body, onContinue){
+    document.getElementById('finish-title').textContent = title;
+    document.getElementById('finish-body').textContent = body;
+    var modal = document.getElementById('finish-modal');
+    modal.classList.remove('hidden');
+    var btn = document.getElementById('finish-continue');
+    var handler = function(){
+      modal.classList.add('hidden');
+      btn.removeEventListener('click', handler);
+      onContinue();
+    };
+    btn.addEventListener('click', handler);
+  }
+
+  function legTotal(leg){
+    var total = 0;
+    leg.ends.forEach(function(end){ end.arrows.forEach(function(v){ total += scoreValue(v); }); });
+    return total;
+  }
+  function roundTotalScore(round){
+    var total = 0;
+    round.legs.forEach(function(leg){ total += legTotal(leg); });
+    return total;
+  }
+  function totalArrowsInRound(round){
+    var n = 0;
+    round.legs.forEach(function(leg){ leg.ends.forEach(function(end){ n += end.arrows.length; }); });
+    return n;
+  }
+
+  function renderScoreScreen(){
+    var empty = document.getElementById('score-empty');
+    var active = document.getElementById('score-active');
+    if(!current){ empty.style.display='block'; active.style.display='none'; return; }
+    empty.style.display='none'; active.style.display='block';
+
+    updateKeypadForRingType(current.sixRing);
+
+    var leg = current.legs[current.legIndex];
+    document.getElementById('sc-division').textContent = current.division.toUpperCase() + ' · ' + (current.sixRing ? '6 RING' : '10 RING');
+    document.getElementById('sc-distance').textContent = leg.distance + ' m';
+    document.getElementById('sc-leg-idx').textContent = current.legIndex+1;
+    document.getElementById('sc-leg-total').textContent = current.legs.length;
+    document.getElementById('sc-face-info').textContent = 'Rekomendasi target: ' + faceLabel(current.sixRing, leg.distance);
+    document.getElementById('sc-end-idx').textContent = Math.min(leg.ends.length+1, current.endsPerLeg);
+    document.getElementById('sc-end-total').textContent = current.endsPerLeg;
+    document.getElementById('sc-arrow-idx').textContent = current.endArrows.length;
+    document.getElementById('sc-arrow-total').textContent = current.arrowsPerEnd;
+
+    var slotsEl = document.getElementById('sc-slots');
+    slotsEl.innerHTML = '';
+    for(var i=0;i<current.arrowsPerEnd;i++){
+      var v = current.endArrows[i];
+      var div = document.createElement('div');
+      div.className = 'slot' + (v!==undefined ? ' filled ' + RING_CLASS[v] : '');
+      div.textContent = v!==undefined ? v : '';
+      slotsEl.appendChild(div);
+    }
+
+    var endScoreNow = current.endArrows.reduce(function(s,v){ return s+scoreValue(v); },0);
+    document.getElementById('sc-end-total-score').textContent = endScoreNow;
+    document.getElementById('sc-leg-total-score').textContent = legTotal(leg) + endScoreNow;
+    document.getElementById('sc-round-total-score').textContent = roundTotalScore(current) + endScoreNow;
+
+    var body = document.getElementById('sc-ends-body');
+    body.innerHTML = '';
+    var running = 0;
+    leg.ends.forEach(function(end, idx){
+      var endTotal = end.arrows.reduce(function(s,v){ return s+scoreValue(v); },0);
+      running += endTotal;
+      var tr = document.createElement('tr');
+      var photoCell = end.photo ? '<img class="end-photo-thumb" src="'+end.photo+'" data-src="'+end.photo+'">' : '';
+      tr.innerHTML = '<td>'+(idx+1)+'</td><td>'+end.arrows.join(' - ')+'</td><td class="tot">'+endTotal+' ('+running+')</td><td>'+photoCell+'</td>';
+      body.appendChild(tr);
+    });
+    body.querySelectorAll('.end-photo-thumb').forEach(function(img){
+      img.addEventListener('click', function(){ showPhotoViewer(img.getAttribute('data-src')); });
+    });
+  }
+
+  function showPhotoViewer(src){
+    document.getElementById('view-photo-img').src = src;
+    document.getElementById('view-photo-modal').classList.remove('hidden');
+  }
+  document.getElementById('btn-close-view-photo').addEventListener('click', function(){
+    document.getElementById('view-photo-modal').classList.add('hidden');
+  });
+
+  // ---------- History ----------
+  function normalizeRound(round){
+    round.legs.forEach(function(leg){
+      leg.ends = leg.ends.map(function(e){ return Array.isArray(e) ? {arrows:e, photo:null} : e; });
+    });
+    if(typeof round.sixRing !== 'boolean') round.sixRing = (round.division==='Compound');
+    return round;
+  }
+
+  function renderHistory(){
+    var list = document.getElementById('hist-list');
+    var finished = sessions.filter(function(s){ return s.finished; });
+    if(finished.length===0){
+      list.innerHTML = '<div class="empty"><div class="big">📋</div>Belum ada ronde yang selesai dicatat.</div>';
+      return;
+    }
+    list.innerHTML = '';
+    finished.slice().reverse().forEach(function(round){
+      var el = document.createElement('div');
+      el.className = 'hist-item';
+      var d = new Date(round.date);
+      var distStr = round.legs.map(function(l){ return l.distance+'m'; }).join(', ');
+      el.innerHTML =
+        '<div>' +
+          '<span class="badge '+divisionShort(round.division).replace(' ','')+'">'+divisionShort(round.division)+'</span>' +
+          '<span class="badge ring">'+(round.sixRing?'6-ring':'10-ring')+'</span>' +
+          '<div class="meta">' + d.toLocaleDateString('id-ID') + ' · ' + distStr + '</div>' +
+        '</div>' +
+        '<div class="score">' + roundTotalScore(round) + '</div>';
+      el.addEventListener('click', function(){ showDetail(round.id); });
+      list.appendChild(el);
+    });
+  }
+
+  var detailRoundId = null;
+  function showDetail(id){
+    detailRoundId = id;
+    var round = sessions.find(function(s){ return s.id===id; });
+    if(!round) return;
+    document.getElementById('det-title').textContent =
+      divisionShort(round.division) + ' · ' + (round.sixRing?'6-ring':'10-ring') + ' · ' + new Date(round.date).toLocaleDateString('id-ID');
+    var body = document.getElementById('det-body');
+    body.innerHTML = '';
+    round.legs.forEach(function(leg){
+      var wrap = document.createElement('div');
+      wrap.style.marginBottom = '16px';
+      var tens=0, xs=0, misses=0, arrows=0;
+      leg.ends.forEach(function(end){ end.arrows.forEach(function(v){
+        arrows++;
+        if(v==='X') xs++;
+        if(v==='X'||v==='10') tens++;
+        if(v==='M') misses++;
+      });});
+      var html = '<h3 style="margin:0 0 6px;color:var(--field);font-size:15px;">Jarak '+leg.distance+' m — Total '+legTotal(leg)+
+        ' <span style="font-size:11px;color:var(--ink-soft);">('+faceLabel(round.sixRing, leg.distance)+')</span></h3>';
+      html += '<table class="ends-table"><thead><tr><th>End</th><th>Skor</th><th>Total</th><th></th></tr></thead><tbody>';
+      var running=0;
+      leg.ends.forEach(function(end, idx){
+        var t = end.arrows.reduce(function(s,v){ return s+scoreValue(v); },0);
+        running += t;
+        var photoCell = end.photo ? '<img class="end-photo-thumb" src="'+end.photo+'" data-src="'+end.photo+'">' : '';
+        html += '<tr><td>'+(idx+1)+'</td><td>'+end.arrows.join(' - ')+'</td><td class="tot">'+t+' ('+running+')</td><td>'+photoCell+'</td></tr>';
+      });
+      html += '</tbody></table>';
+      html += '<div class="hint">Anak panah: '+arrows+' · Sepuluh (termasuk X): '+tens+' · X: '+xs+' · Miss: '+misses+'</div>';
+      wrap.innerHTML = html;
+      body.appendChild(wrap);
+    });
+    body.querySelectorAll('.end-photo-thumb').forEach(function(img){
+      img.addEventListener('click', function(){ showPhotoViewer(img.getAttribute('data-src')); });
+    });
+    showView('detail');
+  }
+
+  document.getElementById('btn-back-hist').addEventListener('click', function(){ showView('history'); });
+  document.getElementById('btn-delete-round').addEventListener('click', function(){
+    if(!detailRoundId) return;
+    if(confirm('Hapus ronde ini dari riwayat?')){
+      sessions = sessions.filter(function(s){ return s.id!==detailRoundId; });
+      showView('history');
+    }
+  });
+
+  // ---------- Export / Import ----------
+  document.getElementById('btn-export').addEventListener('click', function(){
+    var data = JSON.stringify({exportedAt:new Date().toISOString(), sessions:sessions}, null, 2);
+    var blob = new Blob([data], {type:'application/json'});
+    var url = URL.createObjectURL(blob);
+    var a = document.createElement('a');
+    var stamp = new Date().toISOString().slice(0,10);
+    a.href = url; a.download = 'skor-panahan-'+stamp+'.json';
+    document.body.appendChild(a); a.click(); document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+    toast('Data diekspor. Simpan file ini agar riwayat tidak hilang.');
+  });
+
+  document.getElementById('btn-import-trigger').addEventListener('click', function(){
+    document.getElementById('importFile').click();
+  });
+
+  document.getElementById('importFile').addEventListener('change', function(e){
+    var file = e.target.files[0];
+    if(!file) return;
+    var reader = new FileReader();
+    reader.onload = function(evt){
+      try{
+        var parsed = JSON.parse(evt.target.result);
+        var incoming = parsed.sessions || [];
+        var existingIds = sessions.map(function(s){ return s.id; });
+        var added = 0;
+        incoming.forEach(function(s){
+          if(existingIds.indexOf(s.id)===-1){ sessions.push(normalizeRound(s)); added++; }
+        });
+        toast('Impor berhasil — ' + added + ' ronde ditambahkan.');
+        renderHistory();
+      } catch(err){
+        toast('Gagal membaca file. Pastikan file JSON hasil ekspor aplikasi ini.');
+      }
+      e.target.value = '';
+    };
+    reader.readAsText(file);
+  });
+
+  // ---------- Photo scoring ----------
+  var photo = null; // {img, natW, natH, calib:{center,right,top}, points:[{x,y,type,score}]}
+  var MARK_COLORS = {gold:'#C9972E', red:'#B23A2F', ink:'#1E2A22', line:'#F1ECDE'};
+
+  document.getElementById('btn-open-photo').addEventListener('click', function(){
+    if(!current) return;
+    if(current.endArrows.length>0){
+      if(!confirm('End yang sedang berjalan akan direset dan diganti dengan hasil dari foto. Lanjutkan?')) return;
+      current.endArrows = [];
+    }
+    photo = { img:null, calib:{}, points:[] };
+    document.getElementById('photo-picker').style.display='block';
+    document.getElementById('photo-workspace').style.display='none';
+    document.getElementById('chk-save-photo').checked = false;
+    document.getElementById('photo-zoom').value = 1;
+    updatePhotoStepText();
+    document.getElementById('photo-modal').classList.remove('hidden');
+  });
+
+  document.getElementById('btn-take-photo').addEventListener('click', function(){
+    document.getElementById('photo-input').click();
+  });
+
+  document.getElementById('photo-input').addEventListener('change', function(e){
+    var file = e.target.files[0]; if(!file) return;
+    var reader = new FileReader();
+    reader.onload = function(evt){
+      var img = new Image();
+      img.onload = function(){
+        var maxDim = 1400;
+        var scale = Math.min(1, maxDim/img.naturalWidth, maxDim/img.naturalHeight);
+        var w = Math.round(img.naturalWidth*scale), h = Math.round(img.naturalHeight*scale);
+        var canvas = document.getElementById('photo-canvas');
+        canvas.width = w; canvas.height = h;
+        canvas.style.width = w+'px'; canvas.style.height = h+'px';
+        photo.img = img; photo.w = w; photo.h = h;
+        document.getElementById('photo-picker').style.display='none';
+        document.getElementById('photo-workspace').style.display='block';
+        drawPhotoCanvas();
+        updatePhotoStepText();
+      };
+      img.src = evt.target.result;
+    };
+    reader.readAsDataURL(file);
+    e.target.value = '';
+  });
+
+  document.getElementById('photo-zoom').addEventListener('input', function(e){
+    var z = parseFloat(e.target.value);
+    var canvas = document.getElementById('photo-canvas');
+    canvas.style.width = (photo.w*z)+'px';
+    canvas.style.height = (photo.h*z)+'px';
+  });
+
+  function calibStage(){
+    if(!photo.calib.center) return 0;
+    if(!photo.calib.right) return 1;
+    if(!photo.calib.top) return 2;
+    return 3; // ready for arrow taps
+  }
+
+  function updatePhotoStepText(){
+    var el = document.getElementById('photo-step-text');
+    if(!photo || !photo.img){ el.textContent = 'Ambil foto target, tegak lurus dan seluruh lingkaran skor terlihat.'; return; }
+    var stage = calibStage();
+    if(stage===0) el.textContent = 'Langkah 1/3 kalibrasi: ketuk TITIK TENGAH target (pusat emas).';
+    else if(stage===1) el.textContent = 'Langkah 2/3 kalibrasi: ketuk TEPI LUAR lingkaran skor di sisi KANAN (bukan tepi kertas).';
+    else if(stage===2) el.textContent = 'Langkah 3/3 kalibrasi: ketuk TEPI LUAR lingkaran skor di sisi ATAS.';
+    else el.textContent = 'Sekarang ketuk tiap lubang anak panah di foto. Ketuk titik yang sudah ada untuk menghapusnya.';
+    document.getElementById('btn-photo-confirm').disabled = !(stage===3 && photo.points.length === current.arrowsPerEnd);
+  }
+
+  function drawPhotoCanvas(){
+    var canvas = document.getElementById('photo-canvas');
+    var ctx = canvas.getContext('2d');
+    ctx.clearRect(0,0,canvas.width,canvas.height);
+    ctx.drawImage(photo.img, 0, 0, canvas.width, canvas.height);
+
+    function crosshair(pt, color){
+      ctx.strokeStyle = color; ctx.lineWidth = 2;
+      ctx.beginPath(); ctx.moveTo(pt.x-10,pt.y); ctx.lineTo(pt.x+10,pt.y); ctx.stroke();
+      ctx.beginPath(); ctx.moveTo(pt.x,pt.y-10); ctx.lineTo(pt.x,pt.y+10); ctx.stroke();
+      ctx.beginPath(); ctx.arc(pt.x,pt.y,4,0,Math.PI*2); ctx.fillStyle=color; ctx.fill();
+    }
+    if(photo.calib.center) crosshair(photo.calib.center, MARK_COLORS.gold);
+    if(photo.calib.right){
+      ctx.strokeStyle = MARK_COLORS.gold; ctx.lineWidth=1.5;
+      ctx.beginPath(); ctx.moveTo(photo.calib.center.x,photo.calib.center.y); ctx.lineTo(photo.calib.right.x,photo.calib.right.y); ctx.stroke();
+      crosshair(photo.calib.right, MARK_COLORS.gold);
+    }
+    if(photo.calib.top){
+      ctx.strokeStyle = MARK_COLORS.gold; ctx.lineWidth=1.5;
+      ctx.beginPath(); ctx.moveTo(photo.calib.center.x,photo.calib.center.y); ctx.lineTo(photo.calib.top.x,photo.calib.top.y); ctx.stroke();
+      crosshair(photo.calib.top, MARK_COLORS.gold);
+    }
+    photo.points.forEach(function(p, idx){
+      if(p.type==='miss') return; // no canvas position
+      ctx.beginPath(); ctx.arc(p.x,p.y,12,0,Math.PI*2);
+      ctx.fillStyle = 'rgba(178,58,47,.25)'; ctx.fill();
+      ctx.strokeStyle = MARK_COLORS.red; ctx.lineWidth=2; ctx.stroke();
+      ctx.fillStyle = '#fff'; ctx.font='bold 13px monospace'; ctx.textAlign='center'; ctx.textBaseline='middle';
+      ctx.fillText(p.score, p.x, p.y);
+    });
+  }
+
+  function canvasCoordsFromEvent(e){
+    var canvas = document.getElementById('photo-canvas');
+    var rect = canvas.getBoundingClientRect();
+    var clientX = e.clientX!==undefined ? e.clientX : (e.touches && e.touches[0] ? e.touches[0].clientX : 0);
+    var clientY = e.clientY!==undefined ? e.clientY : (e.touches && e.touches[0] ? e.touches[0].clientY : 0);
+    return {
+      x: (clientX-rect.left)/rect.width*canvas.width,
+      y: (clientY-rect.top)/rect.height*canvas.height
+    };
+  }
+
+  document.getElementById('photo-canvas').addEventListener('click', function(e){
+    if(!photo || !photo.img) return;
+    var pt = canvasCoordsFromEvent(e);
+    var stage = calibStage();
+    if(stage===0){ photo.calib.center = pt; }
+    else if(stage===1){ photo.calib.right = pt; }
+    else if(stage===2){ photo.calib.top = pt; }
+    else {
+      // check tap-to-remove existing point
+      var hitIdx = -1;
+      photo.points.forEach(function(p, idx){
+        if(p.type==='miss') return;
+        if(Math.hypot(p.x-pt.x, p.y-pt.y) < 16) hitIdx = idx;
+      });
+      if(hitIdx>=0){
+        photo.points.splice(hitIdx,1);
+      } else if(photo.points.length < current.arrowsPerEnd) {
+        var c = photo.calib.center, r = photo.calib.right, t = photo.calib.top;
+        var rx = Math.hypot(r.x-c.x, r.y-c.y);
+        var ry = Math.hypot(t.x-c.x, t.y-c.y);
+        var dx = pt.x-c.x, dy = pt.y-c.y;
+        var rNorm = Math.sqrt(Math.pow(dx/rx,2)+Math.pow(dy/ry,2));
+        var score = scoreFromRadius(rNorm, current.sixRing);
+        photo.points.push({x:pt.x, y:pt.y, type:'point', score:score});
+      }
+    }
+    drawPhotoCanvas();
+    updatePhotoStepText();
+    updatePhotoArrowList();
+  });
+
+  function updatePhotoArrowList(){
+    var el = document.getElementById('photo-arrow-list');
+    if(photo.points.length===0){ el.innerHTML=''; return; }
+    el.innerHTML = '<div class="hint" style="margin:0 0 4px;">Ditandai ('+photo.points.length+'/'+current.arrowsPerEnd+'):</div>';
+    photo.points.forEach(function(p, idx){
+      var tag = document.createElement('span');
+      tag.className='arrow-tag';
+      tag.innerHTML = (idx+1)+': '+p.score+' <button data-idx="'+idx+'">✕</button>';
+      el.appendChild(tag);
+    });
+    el.querySelectorAll('button[data-idx]').forEach(function(btn){
+      btn.addEventListener('click', function(){
+        photo.points.splice(parseInt(btn.getAttribute('data-idx'),10),1);
+        drawPhotoCanvas(); updatePhotoStepText(); updatePhotoArrowList();
+      });
+    });
+  }
+
+  document.getElementById('btn-photo-addmiss').addEventListener('click', function(){
+    if(!photo || calibStage()!==3) { toast('Selesaikan kalibrasi dulu.'); return; }
+    if(photo.points.length >= current.arrowsPerEnd) return;
+    photo.points.push({type:'miss', score:'M'});
+    updatePhotoStepText(); updatePhotoArrowList();
+  });
+
+  document.getElementById('btn-photo-undo').addEventListener('click', function(){
+    if(!photo) return;
+    if(photo.points.length>0){ photo.points.pop(); }
+    else if(photo.calib.top){ photo.calib.top = null; }
+    else if(photo.calib.right){ photo.calib.right = null; }
+    else if(photo.calib.center){ photo.calib.center = null; }
+    drawPhotoCanvas(); updatePhotoStepText(); updatePhotoArrowList();
+  });
+
+  document.getElementById('btn-photo-reset').addEventListener('click', function(){
+    if(!photo) return;
+    photo.calib = {}; photo.points = [];
+    drawPhotoCanvas(); updatePhotoStepText(); updatePhotoArrowList();
+  });
+
+  document.getElementById('btn-photo-cancel').addEventListener('click', function(){
+    document.getElementById('photo-modal').classList.add('hidden');
+    photo = null;
+    renderScoreScreen();
+  });
+
+  document.getElementById('btn-photo-confirm').addEventListener('click', function(){
+    if(!photo || photo.points.length !== current.arrowsPerEnd) return;
+    current.endArrows = photo.points.map(function(p){ return p.score; });
+    if(document.getElementById('chk-save-photo').checked){
+      var thumbCanvas = document.createElement('canvas');
+      var srcCanvas = document.getElementById('photo-canvas');
+      var tw = 360, th = Math.round(360 * srcCanvas.height/srcCanvas.width);
+      thumbCanvas.width = tw; thumbCanvas.height = th;
+      thumbCanvas.getContext('2d').drawImage(srcCanvas,0,0,tw,th);
+      current.pendingPhotoThumb = thumbCanvas.toDataURL('image/jpeg', 0.6);
+    } else {
+      current.pendingPhotoThumb = null;
+    }
+    document.getElementById('photo-modal').classList.add('hidden');
+    photo = null;
+    completeEnd();
+  });
+
+  // init
+  renderScoreScreen();
+})();
+</script>
+</body>
+</html>
