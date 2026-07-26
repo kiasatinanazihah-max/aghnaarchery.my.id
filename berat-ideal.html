@@ -1,0 +1,504 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Berat Massa Ideal — Aghna Archery Club</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,600;9..144,700&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --green-900:#0D0D0D;--green-800:#141414;--green-700:#1F1F1F;
+    --cream:#FAFAFA;--cream-dim:#EFEFEF;
+    --gold:#E8171C;--gold-dark:#B10F13;--maroon:#B10F13;
+    --blue:#1230C4;--blue-dark:#0C2091;
+    --amber:#B7791F;--amber-bg:#FBF0DC;
+    --green-ok:#2F7D32;--green-ok-bg:#E4F3E5;
+    --sky:#1D6FA5;--sky-bg:#E3EFF6;
+    --ink:#161616;--ink-soft:#5C5C5C;--line:rgba(20,20,20,0.12);
+    font-family:'Inter',sans-serif;
+  }
+  *{box-sizing:border-box;}
+  body{margin:0;background:var(--cream);color:var(--ink);min-height:100vh;}
+  h1,h2,h3,.display{font-family:'Fraunces',serif;font-weight:600;letter-spacing:-0.01em;}
+  .mono{font-family:'JetBrains Mono',monospace;}
+
+  header{
+    background:var(--green-800);color:var(--cream);padding:20px 24px;
+    display:flex;align-items:center;justify-content:space-between;
+    position:sticky;top:0;z-index:20;box-shadow:0 1px 0 rgba(0,0,0,0.15);
+    flex-wrap:wrap;gap:10px;
+  }
+  .brand{display:flex;align-items:center;gap:12px;}
+  .brand-text .name{font-family:'Fraunces',serif;font-size:18px;font-weight:700;line-height:1.1;}
+  .brand-text .tag{font-size:11px;letter-spacing:0.1em;text-transform:uppercase;color:var(--gold);}
+  .back-link{color:var(--cream);opacity:0.75;font-size:13px;text-decoration:none;display:inline-flex;align-items:center;gap:6px;}
+  .back-link:hover{opacity:1;}
+
+  main{max-width:960px;margin:0 auto;padding:32px 24px 80px;}
+  .intro{margin-bottom:28px;}
+  .intro h1{font-size:26px;margin:0 0 6px;color:var(--green-900);}
+  .intro p{margin:0;color:var(--ink-soft);font-size:14px;max-width:640px;line-height:1.6;}
+
+  .layout{display:grid;grid-template-columns:1fr;gap:24px;}
+  @media (min-width:860px){ .layout{grid-template-columns:1fr 1fr;align-items:start;} }
+
+  .card{background:#fff;border:1px solid var(--line);border-radius:14px;padding:22px;}
+  .card h2{font-size:16px;margin:0 0 4px;color:var(--green-900);}
+  .card .card-sub{font-size:12px;color:var(--ink-soft);margin-bottom:18px;}
+
+  .field-row{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:14px;}
+  .field{margin-bottom:14px;}
+  .field label{display:block;font-size:12.5px;font-weight:600;color:var(--ink-soft);margin-bottom:6px;}
+  .field .hint{font-size:11px;color:var(--ink-soft);margin-top:4px;font-weight:400;}
+  .field input, .field select{
+    width:100%;font-family:'Inter',sans-serif;font-size:14px;
+    padding:10px 12px;border-radius:8px;border:1px solid var(--line);
+    background:var(--cream);color:var(--ink);
+  }
+  .field input:focus, .field select:focus{outline:none;border-color:var(--gold-dark);}
+
+  .segmented{display:flex;border:1px solid var(--line);border-radius:8px;overflow:hidden;}
+  .segmented button{
+    flex:1;padding:10px 6px;font-size:12px;font-weight:600;
+    background:var(--cream);border:none;border-right:1px solid var(--line);
+    cursor:pointer;color:var(--ink-soft);
+  }
+  .segmented button:last-child{border-right:none;}
+  .segmented button.active{background:var(--green-800);color:var(--cream);}
+
+  .btn{
+    font-family:'Inter',sans-serif;font-size:14px;font-weight:600;
+    padding:12px 18px;border-radius:999px;border:1.5px solid var(--green-800);
+    background:var(--green-800);color:var(--cream);cursor:pointer;width:100%;margin-top:6px;
+  }
+  .btn:hover{background:var(--green-700);}
+
+  .gauge-wrap{text-align:center;margin-bottom:6px;}
+  .gauge-wrap svg{width:100%;max-width:340px;height:auto;}
+  .gauge-value{font-family:'Fraunces',serif;font-weight:700;font-size:28px;color:var(--green-900);margin-top:-30px;}
+  .gauge-status{font-size:12.5px;font-weight:700;margin-top:2px;}
+
+  .result-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:18px 0;}
+  .result-stat{border:1px solid var(--line);border-radius:10px;padding:12px 14px;background:var(--cream);}
+  .result-stat.span2{grid-column:span 2;}
+  .result-stat .label{font-size:11px;color:var(--ink-soft);text-transform:uppercase;letter-spacing:0.04em;}
+  .result-stat .value{font-family:'JetBrains Mono',monospace;font-weight:700;font-size:17px;margin-top:3px;color:var(--green-900);}
+  .badge{display:inline-block;font-size:10.5px;font-weight:700;padding:2px 8px;border-radius:999px;margin-top:6px;}
+  .badge.ok{background:var(--green-ok-bg);color:var(--green-ok);}
+  .badge.warn{background:var(--amber-bg);color:var(--amber);}
+  .badge.info{background:var(--sky-bg);color:var(--sky);}
+
+  .reco-list{display:flex;flex-direction:column;gap:8px;margin-top:16px;}
+  .reco-item{
+    display:flex;justify-content:space-between;align-items:center;
+    border:1px solid var(--line);border-radius:10px;padding:12px 14px;font-size:13px;
+  }
+  .reco-item b{font-family:'JetBrains Mono',monospace;font-size:14px;color:var(--green-900);}
+
+  .empty-result{text-align:center;color:var(--ink-soft);font-size:13px;padding:40px 16px;}
+
+  .history-section{margin-top:28px;}
+  .history-chart{background:#fff;border:1px solid var(--line);border-radius:14px;padding:20px;margin-bottom:16px;}
+  .history-list{display:flex;flex-direction:column;gap:8px;}
+  .history-row{
+    display:flex;justify-content:space-between;align-items:center;
+    border:1px solid var(--line);border-radius:10px;padding:10px 14px;font-size:12.5px;background:#fff;
+  }
+  .history-row .h-date{color:var(--ink-soft);}
+  .history-row .h-weight{font-family:'JetBrains Mono',monospace;font-weight:700;}
+
+  .disclaimer{
+    margin-top:20px;font-size:11.5px;color:var(--ink-soft);
+    background:var(--cream-dim);border-radius:8px;padding:12px 14px;line-height:1.6;
+  }
+  footer{text-align:center;padding:24px;font-size:12px;color:var(--ink-soft);}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="brand">
+    <img src="assets/logo.jpg" alt="Logo Aghna Archery" style="width:36px;height:36px;border-radius:8px;object-fit:cover;">
+    <div class="brand-text">
+      <div class="name">Berat Massa Ideal</div>
+      <div class="tag">Aghna Archery Club — Tools Pembantu</div>
+    </div>
+  </div>
+  <a class="back-link" href="index.html">&#8592; Kembali ke situs utama</a>
+</header>
+
+<main>
+  <div class="intro">
+    <h1>Kalkulator berat massa ideal</h1>
+    <p>Hitung BMI, berat ideal, BMR, kebutuhan kalori harian, dan rekomendasi nutrisi. Pilih namamu dari daftar anggota supaya riwayat pengukuranmu tersimpan dan bisa dilihat lagi kapan saja.</p>
+  </div>
+
+  <div class="layout">
+    <!-- ===== FORM ===== -->
+    <div class="card">
+      <h2>Data diri</h2>
+      <div class="card-sub">Pilih namamu dari daftar anggota (opsional) supaya riwayat tersimpan.</div>
+
+      <div class="field">
+        <label>Pilih pemanah</label>
+        <select id="input-member" onchange="handleMemberChange()">
+          <option value="">— Isi manual (tidak disimpan ke riwayat) —</option>
+        </select>
+      </div>
+
+      <div class="field">
+        <label>Nama</label>
+        <input type="text" id="input-nama" placeholder="Nama lengkap">
+      </div>
+
+      <div class="field">
+        <label>Jenis kelamin</label>
+        <div class="segmented" id="gender-segmented">
+          <button type="button" data-value="pria" class="active">Pria</button>
+          <button type="button" data-value="wanita">Wanita</button>
+        </div>
+      </div>
+
+      <div class="field-row">
+        <div class="field">
+          <label>Umur (tahun)</label>
+          <input type="number" id="input-umur" value="20" min="5" max="100">
+        </div>
+        <div class="field">
+          <label>Tinggi badan (cm)</label>
+          <input type="number" id="input-tinggi" value="165" min="100" step="0.5">
+        </div>
+      </div>
+
+      <div class="field">
+        <label>Berat badan (kg)</label>
+        <input type="number" id="input-berat" value="60" min="20" step="0.1">
+      </div>
+
+      <div class="field">
+        <label>Tingkat aktivitas</label>
+        <select id="input-aktivitas">
+          <option value="1.2">Sangat ringan (jarang olahraga)</option>
+          <option value="1.375">Ringan (1-3x/minggu)</option>
+          <option value="1.55" selected>Sedang (3-5x/minggu, termasuk latihan klub)</option>
+          <option value="1.725">Berat (6-7x/minggu)</option>
+          <option value="1.9">Atlet (latihan intensif tiap hari)</option>
+        </select>
+      </div>
+
+      <div class="field">
+        <label>Tujuan</label>
+        <div class="segmented" id="goal-segmented">
+          <button type="button" data-value="turun" class="active">Turun BB</button>
+          <button type="button" data-value="naik">Naik BB</button>
+          <button type="button" data-value="pertahankan">Pertahankan</button>
+        </div>
+      </div>
+
+      <div class="field">
+        <label>Target berat badan (kg)</label>
+        <input type="number" id="input-target" value="58" min="20" step="0.1">
+      </div>
+
+      <button class="btn" onclick="hitungSemua()">Hitung</button>
+    </div>
+
+    <!-- ===== HASIL ===== -->
+    <div class="card">
+      <h2>Hasil analisis</h2>
+      <div class="card-sub">Estimasi berdasarkan data yang kamu isi.</div>
+      <div id="result-area">
+        <div class="empty-result">Isi data di sebelah kiri, lalu tekan <strong>Hitung</strong> untuk melihat hasilnya di sini.</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== RIWAYAT ===== -->
+  <div class="history-section" id="history-section" style="display:none;">
+    <div class="card-sub" style="margin-bottom:10px;"><h2 style="font-size:16px;color:var(--green-900);margin:0;">Riwayat berat badan</h2></div>
+    <div class="history-chart">
+      <canvas id="weight-chart" height="90"></canvas>
+    </div>
+    <div class="history-list" id="history-list"></div>
+  </div>
+
+  <div class="disclaimer">
+    <strong>Catatan:</strong> BMR dihitung dengan formula Mifflin-St Jeor, TDEE dari faktor aktivitas standar, dan rekomendasi protein/air memakai pedoman umum (bukan resep medis personal). Hasil di halaman ini adalah estimasi untuk membantu monitoring kebugaran, bukan pengganti konsultasi ahli gizi atau dokter.
+  </div>
+</main>
+
+<footer>Aghna Archery Club &middot; Kalkulator Berat Massa Ideal — Tahap 1</footer>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
+<script>
+const firebaseConfig = {
+  apiKey: "AIzaSyDs5WwbTEQAzQzncPTGbAZsyrIBTDeMEl0",
+  authDomain: "aghna-archery.firebaseapp.com",
+  projectId: "aghna-archery",
+  storageBucket: "aghna-archery.firebasestorage.app",
+  messagingSenderId: "374280708816",
+  appId: "1:374280708816:web:258922b58d23d651cd74d5"
+};
+firebase.initializeApp(firebaseConfig);
+const db = firebase.firestore();
+
+let MEMBERS = [];
+let selectedMemberId = '';
+let weightChart = null;
+
+function escapeHtml(str){
+  const div = document.createElement('div');
+  div.textContent = str ?? '';
+  return div.innerHTML;
+}
+function todayStr(){ return new Date().toISOString().slice(0,10); }
+function fmtTanggal(iso){
+  const d = new Date(iso + 'T00:00:00');
+  return d.toLocaleDateString('id-ID', { day:'numeric', month:'short', year:'numeric' });
+}
+
+// ============ Segmented control ============
+function setupSegmented(id){
+  const wrap = document.getElementById(id);
+  wrap.addEventListener('click', e=>{
+    const btn = e.target.closest('button');
+    if(!btn) return;
+    wrap.querySelectorAll('button').forEach(b=>b.classList.remove('active'));
+    btn.classList.add('active');
+  });
+}
+function getSegmentedValue(id){
+  return document.querySelector(`#${id} button.active`).dataset.value;
+}
+setupSegmented('gender-segmented');
+setupSegmented('goal-segmented');
+
+// ============ Muat daftar pemanah dari Firestore ============
+db.collection('members').onSnapshot(snapshot=>{
+  MEMBERS = snapshot.docs.map(doc=>({ id: doc.id, ...doc.data() }))
+    .sort((a,b)=>a.nama.localeCompare(b.nama));
+  const select = document.getElementById('input-member');
+  const current = select.value;
+  select.innerHTML = '<option value="">— Isi manual (tidak disimpan ke riwayat) —</option>' +
+    MEMBERS.map(m=>`<option value="${m.id}">${escapeHtml(m.nama)}</option>`).join('');
+  select.value = current;
+}, err=>console.error('Gagal memuat data anggota:', err));
+
+function handleMemberChange(){
+  selectedMemberId = document.getElementById('input-member').value;
+  const member = MEMBERS.find(m=>m.id === selectedMemberId);
+  if(member){
+    document.getElementById('input-nama').value = member.nama;
+    if(member.berat != null) document.getElementById('input-berat').value = member.berat;
+    if(member.tinggi != null) document.getElementById('input-tinggi').value = member.tinggi;
+    if(member.tanggalLahir){
+      const umur = Math.floor((Date.now() - new Date(member.tanggalLahir).getTime()) / (365.25*24*3600*1000));
+      if(umur > 0) document.getElementById('input-umur').value = umur;
+    }
+    loadHistory(member.id);
+  }else{
+    document.getElementById('history-section').style.display = 'none';
+  }
+}
+
+// ============ Kategori & badge ============
+function bmiCategory(bmi){
+  if(bmi < 18.5) return { text:'Kurus', cls:'warn' };
+  if(bmi < 25) return { text:'Normal', cls:'ok' };
+  if(bmi < 30) return { text:'Overweight', cls:'warn' };
+  return { text:'Obesitas', cls:'warn' };
+}
+
+// ============ Gauge BMI (SVG semi-circle) ============
+function pointOnGauge(cx, cy, r, thetaDeg){
+  const phi = Math.PI - thetaDeg*(Math.PI/180);
+  return { x: cx + r*Math.cos(phi), y: cy - r*Math.sin(phi) };
+}
+function arcPath(cx, cy, r, t1, t2){
+  const p1 = pointOnGauge(cx,cy,r,t1);
+  const p2 = pointOnGauge(cx,cy,r,t2);
+  const largeArc = (t2-t1) > 180 ? 1 : 0;
+  return `M ${p1.x.toFixed(2)} ${p1.y.toFixed(2)} A ${r} ${r} 0 ${largeArc} 1 ${p2.x.toFixed(2)} ${p2.y.toFixed(2)}`;
+}
+function renderBmiGauge(bmi){
+  const cx=170, cy=160, r=130;
+  const gMin=15, gMax=35;
+  const toTheta = v => Math.max(0, Math.min(180, ((v-gMin)/(gMax-gMin))*180));
+
+  const bands = [
+    { from:15, to:18.5, color:'#1D6FA5' },
+    { from:18.5, to:25, color:'#2F7D32' },
+    { from:25, to:30, color:'#B7791F' },
+    { from:30, to:35, color:'#B10F13' },
+  ];
+  const bandPaths = bands.map(b=>
+    `<path d="${arcPath(cx,cy,r,toTheta(b.from),toTheta(b.to))}" stroke="${b.color}" stroke-width="22" fill="none" stroke-linecap="butt"/>`
+  ).join('');
+
+  const needleTheta = toTheta(bmi);
+  const needleTip = pointOnGauge(cx, cy, r-34, needleTheta);
+
+  return `
+  <svg viewBox="0 0 340 190" xmlns="http://www.w3.org/2000/svg">
+    ${bandPaths}
+    <line x1="${cx}" y1="${cy}" x2="${needleTip.x.toFixed(2)}" y2="${needleTip.y.toFixed(2)}" stroke="#141414" stroke-width="4" stroke-linecap="round"/>
+    <circle cx="${cx}" cy="${cy}" r="7" fill="#141414"/>
+    <text x="${cx-r-4}" y="${cy+18}" font-size="10" fill="#5C5C5C" font-family="Inter, sans-serif">15</text>
+    <text x="${cx+r-6}" y="${cy+18}" font-size="10" fill="#5C5C5C" font-family="Inter, sans-serif">35</text>
+  </svg>`;
+}
+
+// ============ Fungsi utama ============
+function hitungSemua(){
+  const nama = document.getElementById('input-nama').value.trim() || 'Tanpa nama';
+  const gender = getSegmentedValue('gender-segmented');
+  const umur = parseFloat(document.getElementById('input-umur').value) || 0;
+  const tinggi = parseFloat(document.getElementById('input-tinggi').value) || 0;
+  const berat = parseFloat(document.getElementById('input-berat').value) || 0;
+  const aktivitas = parseFloat(document.getElementById('input-aktivitas').value);
+  const goal = getSegmentedValue('goal-segmented');
+  const target = parseFloat(document.getElementById('input-target').value) || berat;
+
+  if(tinggi <= 0 || berat <= 0 || umur <= 0){
+    alert('Isi umur, tinggi badan, dan berat badan dengan angka yang valid.');
+    return;
+  }
+
+  const tinggiM = tinggi / 100;
+  const bmi = berat / (tinggiM*tinggiM);
+  const cat = bmiCategory(bmi);
+
+  // Berat ideal - Broca
+  const brocaBase = tinggi - 100;
+  const brocaIdeal = gender === 'pria' ? brocaBase - (0.10*brocaBase) : brocaBase - (0.15*brocaBase);
+
+  // Berat ideal - Devine
+  const tinggiInch = tinggi / 2.54;
+  const devineIdeal = gender === 'pria'
+    ? 50 + 2.3*(tinggiInch - 60)
+    : 45.5 + 2.3*(tinggiInch - 60);
+
+  // Rentang ideal (berdasarkan BMI sehat 18.5-24.9)
+  const rentangMin = 18.5 * tinggiM*tinggiM;
+  const rentangMax = 24.9 * tinggiM*tinggiM;
+
+  // BMR - Mifflin-St Jeor
+  const bmr = gender === 'pria'
+    ? (10*berat + 6.25*tinggi - 5*umur + 5)
+    : (10*berat + 6.25*tinggi - 5*umur - 161);
+
+  const tdee = bmr * aktivitas;
+  const kaloriDiet = tdee - 500;
+  const kaloriBulking = tdee + 500;
+  const protein = berat * 1.8;
+  const air = (berat * 33) / 1000;
+
+  // Estimasi waktu capai target
+  const selisih = Math.abs(target - berat);
+  let waktuText = 'Berat badan sudah di target';
+  if(selisih > 0.3 && goal !== 'pertahankan'){
+    const totalKalori = selisih * 7700;
+    const minggu = totalKalori / 500 / 7;
+    waktuText = `~${Math.ceil(minggu)} minggu (&plusmn;${(minggu/4.345).toFixed(1)} bulan)`;
+  }
+
+  document.getElementById('result-area').innerHTML = `
+    <div class="gauge-wrap">
+      ${renderBmiGauge(bmi)}
+      <div class="gauge-value">${bmi.toFixed(1)}</div>
+      <div class="gauge-status badge ${cat.cls}">${cat.text}</div>
+    </div>
+
+    <div class="result-grid">
+      <div class="result-stat">
+        <div class="label">Berat ideal (Broca)</div>
+        <div class="value">${brocaIdeal.toFixed(1)} kg</div>
+      </div>
+      <div class="result-stat">
+        <div class="label">Berat ideal (Devine)</div>
+        <div class="value">${devineIdeal.toFixed(1)} kg</div>
+      </div>
+      <div class="result-stat span2">
+        <div class="label">Rentang berat ideal</div>
+        <div class="value">${rentangMin.toFixed(1)} – ${rentangMax.toFixed(1)} kg</div>
+      </div>
+      <div class="result-stat">
+        <div class="label">BMR</div>
+        <div class="value">${bmr.toFixed(0)} kkal</div>
+      </div>
+      <div class="result-stat">
+        <div class="label">TDEE</div>
+        <div class="value">${tdee.toFixed(0)} kkal</div>
+      </div>
+    </div>
+
+    <div class="reco-list">
+      <div class="reco-item"><span>Kalori untuk turun BB</span><b>${kaloriDiet.toFixed(0)} kkal/hari</b></div>
+      <div class="reco-item"><span>Kalori untuk naik BB</span><b>${kaloriBulking.toFixed(0)} kkal/hari</b></div>
+      <div class="reco-item"><span>Rekomendasi protein</span><b>${protein.toFixed(0)} gram/hari</b></div>
+      <div class="reco-item"><span>Asupan air</span><b>${air.toFixed(1)} liter/hari</b></div>
+      <div class="reco-item"><span>Estimasi waktu capai target</span><b>${waktuText}</b></div>
+    </div>
+  `;
+
+  // Simpan ke riwayat kalau memilih pemanah dari daftar
+  if(selectedMemberId){
+    db.collection('pengukuran').add({
+      memberId: selectedMemberId,
+      memberNama: nama,
+      berat, tinggi, umur, bmi,
+      tanggal: todayStr(),
+    }).catch(err=>console.error('Gagal simpan riwayat:', err));
+  }
+}
+
+// ============ Riwayat & grafik berat badan ============
+function loadHistory(memberId){
+  db.collection('pengukuran').get().then(snapshot=>{
+    const items = snapshot.docs
+      .map(doc=>({ id: doc.id, ...doc.data() }))
+      .filter(p=>p.memberId === memberId)
+      .sort((a,b)=>a.tanggal.localeCompare(b.tanggal));
+
+    const historySection = document.getElementById('history-section');
+    if(items.length === 0){ historySection.style.display = 'none'; return; }
+    historySection.style.display = 'block';
+
+    const listEl = document.getElementById('history-list');
+    listEl.innerHTML = [...items].reverse().map(p=>`
+      <div class="history-row">
+        <span class="h-date">${fmtTanggal(p.tanggal)}</span>
+        <span class="h-weight">${p.berat} kg &middot; BMI ${p.bmi.toFixed(1)}</span>
+      </div>
+    `).join('');
+
+    const ctx = document.getElementById('weight-chart').getContext('2d');
+    if(weightChart) weightChart.destroy();
+    weightChart = new Chart(ctx, {
+      type: 'line',
+      data: {
+        labels: items.map(p=>fmtTanggal(p.tanggal)),
+        datasets: [{
+          label: 'Berat badan (kg)',
+          data: items.map(p=>p.berat),
+          borderColor: '#B10F13',
+          backgroundColor: 'rgba(177,15,19,0.08)',
+          tension: 0.3,
+          fill: true,
+        }]
+      },
+      options: {
+        responsive: true,
+        plugins: { legend: { display: false } },
+        scales: { y: { beginAtZero: false } }
+      }
+    });
+  }).catch(err=>console.error('Gagal memuat riwayat:', err));
+}
+</script>
+</body>
+</html>
