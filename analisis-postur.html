@@ -1,0 +1,1004 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Bidik — Alat Analisis Postur Pemanah</title>
+<style>
+  :root{
+    --bg: #17231A;
+    --panel: #1E2E20;
+    --panel-2: #24371F;
+    --line: #3A4A34;
+    --gold: #C9A227;
+    --gold-dim: #8f7420;
+    --red: #A23A2E;
+    --ink: #EDE6D6;
+    --ink-dim: #9FAA93;
+    --good: #6E9B5E;
+    --blue: #7FA3D9;
+    --font-display: 'Iowan Old Style','Palatino Linotype', Georgia, 'Times New Roman', serif;
+    --font-mono: 'SF Mono','Roboto Mono', Consolas, 'Courier New', monospace;
+    --font-body: -apple-system, 'Segoe UI', Helvetica, Arial, sans-serif;
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body{
+    background:
+      radial-gradient(circle at 15% -10%, #24371f 0%, transparent 45%),
+      var(--bg);
+    color:var(--ink);
+    font-family:var(--font-body);
+    min-height:100vh;
+    padding:28px 22px 60px;
+  }
+  .wrap{max-width:1280px;margin:0 auto;}
+
+  header{
+    display:flex; justify-content:space-between; align-items:flex-end;
+    border-bottom:1px solid var(--line);
+    padding-bottom:16px; margin-bottom:22px;
+    flex-wrap:wrap; gap:12px;
+  }
+  .brand{display:flex; align-items:center; gap:14px;}
+  .brand-mark{
+    width:44px;height:44px;border-radius:50%;
+    background:
+      radial-gradient(circle, var(--gold) 0 4px, transparent 5px),
+      repeating-radial-gradient(circle, var(--red) 0 6px, var(--ink) 6px 12px, var(--red) 12px 18px, var(--gold-dim) 18px 22px);
+    flex:none;
+    border:1px solid var(--line);
+  }
+  h1{
+    font-family:var(--font-display); font-weight:700; font-size:28px;
+    letter-spacing:.3px; margin:0; color:var(--ink);
+  }
+  .tagline{
+    font-family:var(--font-mono); font-size:11px; letter-spacing:.14em;
+    text-transform:uppercase; color:var(--ink-dim); margin-top:3px;
+  }
+  .file-control{display:flex; align-items:center; gap:10px;}
+  .btn{
+    font-family:var(--font-body); font-size:13px;
+    background:var(--panel-2); color:var(--ink);
+    border:1px solid var(--line); padding:9px 14px; border-radius:3px;
+    cursor:pointer; transition:border-color .15s, background .15s;
+  }
+  .btn:hover{border-color:var(--gold-dim); background:#2b3f26;}
+  .btn.primary{background:var(--gold-dim); border-color:var(--gold); color:#151E12; font-weight:600;}
+  .btn.primary:hover{background:var(--gold);}
+  .btn:disabled{opacity:.35; cursor:not-allowed;}
+  .btn.small{padding:5px 10px; font-size:11px;}
+  input[type=file]{display:none;}
+
+  .main{display:grid; grid-template-columns: minmax(0,1.5fr) minmax(320px, 400px); gap:20px;}
+  @media (max-width: 880px){ .main{grid-template-columns: 1fr;} }
+
+  .panel{background:var(--panel); border:1px solid var(--line); border-radius:4px; padding:16px;}
+  .panel h2{
+    font-family:var(--font-mono); font-size:11px; letter-spacing:.14em; text-transform:uppercase;
+    color:var(--gold); margin:0 0 12px; display:flex; align-items:center; gap:8px;
+  }
+  .panel h2::after{content:"";flex:1;height:1px;background:var(--line);}
+  .panel h2 .sub{color:var(--ink-dim); text-transform:none; letter-spacing:0; font-size:10.5px;}
+
+  .viewport{
+    position:relative; width:100%; background:#0E1710; border:1px solid var(--line);
+    border-radius:3px; overflow:hidden; display:flex; align-items:center; justify-content:center;
+    aspect-ratio:16/10;
+  }
+  .viewport .empty-state{font-family:var(--font-mono); color:var(--ink-dim); font-size:13px; text-align:center; padding:20px; line-height:1.6;}
+  .viewport video{position:absolute; max-width:100%; max-height:100%; top:50%; left:50%; transform:translate(-50%,-50%);}
+  .viewport canvas{position:absolute; top:50%; left:50%; transform:translate(-50%,-50%); cursor:crosshair;}
+
+  .model-banner{
+    position:absolute; left:8px; top:8px; z-index:5;
+    font-family:var(--font-mono); font-size:10.5px; color:var(--ink);
+    background:rgba(14,23,16,0.85); border:1px solid var(--gold-dim);
+    padding:5px 9px; border-radius:3px; display:none; max-width:80%;
+  }
+  .model-banner.show{display:block;}
+
+  .transport{display:flex; align-items:center; gap:8px; margin-top:12px; flex-wrap:wrap;}
+  .transport .spacer{flex:1;}
+  .time-readout{font-family:var(--font-mono); font-size:12px; color:var(--ink-dim); min-width:118px;}
+  select, input[type=number]{
+    background:var(--panel-2); color:var(--ink); border:1px solid var(--line); border-radius:3px;
+    font-family:var(--font-mono); font-size:12px; padding:6px 8px;
+  }
+
+  .segmented{display:flex; border:1px solid var(--line); border-radius:3px; overflow:hidden; margin-bottom:12px;}
+  .segmented button{
+    flex:1; background:var(--panel-2); color:var(--ink-dim); border:none; padding:8px 6px;
+    font-family:var(--font-body); font-size:12.5px; cursor:pointer; border-right:1px solid var(--line);
+  }
+  .segmented button:last-child{border-right:none;}
+  .segmented button.active{background:var(--gold-dim); color:#151E12; font-weight:600;}
+
+  .setting-row{display:flex; flex-direction:column; gap:4px; margin-bottom:10px;}
+  .setting-row label{font-family:var(--font-mono); font-size:10px; text-transform:uppercase; letter-spacing:.06em; color:var(--ink-dim);}
+  .setting-row select{width:100%;}
+  .style-desc{
+    font-family:var(--font-mono); font-size:10.5px; line-height:1.6; color:var(--ink-dim);
+    background:var(--panel-2); border-left:2px solid var(--gold-dim); border-radius:0 3px 3px 0;
+    padding:8px 9px; margin-bottom:12px;
+  }
+
+  .model-status{
+    font-family:var(--font-mono); font-size:10.5px; color:var(--ink-dim); margin-bottom:10px;
+    display:flex; align-items:center; gap:6px; min-height:14px;
+  }
+  .model-status .dot{width:7px;height:7px;border-radius:50%; background:var(--ink-dim); flex:none;}
+  .model-status.ready .dot{background:var(--good);}
+  .model-status.loading .dot{background:var(--gold); animation:pulse 1s infinite;}
+  .model-status.error .dot{background:var(--red);}
+  @keyframes pulse{0%,100%{opacity:1;}50%{opacity:.3;}}
+
+  .live-toggle{display:flex; align-items:center; gap:7px; font-family:var(--font-mono); font-size:11px; color:var(--ink-dim); margin-bottom:10px;}
+
+  .kp-list{display:flex; flex-direction:column; gap:4px; margin-bottom:14px;}
+  .kp-btn{
+    display:flex; align-items:center; gap:9px; background:transparent; border:1px solid transparent;
+    border-radius:3px; padding:6px 8px; cursor:pointer; color:var(--ink); font-size:12.5px;
+    text-align:left; font-family:var(--font-body); width:100%;
+  }
+  .kp-btn:hover{background:var(--panel-2);}
+  .kp-btn.active{background:var(--panel-2); border-color:var(--gold);}
+  .kp-dot{width:9px;height:9px;border-radius:50%; flex:none; border:1px solid rgba(0,0,0,.3);}
+  .kp-btn .kp-status{margin-left:auto; font-family:var(--font-mono); font-size:9.5px; color:var(--ink-dim);}
+  .kp-btn.placed .kp-status{color:var(--good);}
+  .kp-btn.auto-src .kp-status{color:var(--blue);}
+  .kp-hint{
+    font-family:var(--font-mono); font-size:10.5px; color:var(--ink-dim); line-height:1.6;
+    padding:9px 10px; background:var(--panel-2); border-left:2px solid var(--gold-dim);
+    border-radius:0 3px 3px 0; margin-bottom:14px;
+  }
+
+  .gauges{display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-bottom:14px;}
+  .gauge-card{background:var(--panel-2); border:1px solid var(--line); border-radius:3px; padding:8px 8px 6px; text-align:center;}
+  .gauge-label{font-family:var(--font-mono); font-size:9.5px; letter-spacing:.05em; text-transform:uppercase; color:var(--ink-dim); margin-top:2px;}
+  .gauge-value{font-family:var(--font-display); font-size:19px; margin-top:-4px;}
+  .gauge-note{font-size:9px; color:var(--ink-dim); margin-top:2px; min-height:11px;}
+
+  .metric-row{display:flex; justify-content:space-between; align-items:baseline; padding:5px 0; border-bottom:1px dashed var(--line); font-size:12px; gap:10px;}
+  .metric-row .m-label{color:var(--ink-dim);}
+  .metric-row .m-val{font-family:var(--font-mono); color:var(--ink); text-align:right;}
+  .metric-note{font-size:9.5px; color:var(--ink-dim); font-style:italic; padding:2px 0 6px; border-bottom:1px dashed var(--line);}
+
+  .calib{display:flex; gap:8px; align-items:center; margin-top:10px; flex-wrap:wrap;}
+  .calib input{width:70px;}
+
+  .timeline-panel{margin-top:20px;}
+  .scrub{position:relative; height:34px; background:var(--panel-2); border:1px solid var(--line); border-radius:3px; margin-top:6px; cursor:pointer;}
+  .scrub .playhead{position:absolute; top:0; bottom:0; width:2px; background:var(--gold); left:0;}
+  .scrub .mark{position:absolute; top:4px; bottom:4px; width:3px; border-radius:2px; background:var(--good); cursor:pointer;}
+  .scrub .mark:hover{background:var(--gold);}
+  .frame-log{margin-top:14px; max-height:220px; overflow-y:auto;}
+  .frame-row{display:grid; grid-template-columns:70px 1fr auto auto; gap:10px; align-items:center; padding:7px 4px; border-bottom:1px solid var(--line); font-size:12px;}
+  .frame-row:last-child{border-bottom:none;}
+  .frame-row .t{font-family:var(--font-mono); color:var(--gold);}
+  .frame-row .summary{color:var(--ink-dim); font-size:11px;}
+  .empty-log{color:var(--ink-dim); font-size:12px; font-family:var(--font-mono); padding:10px 0; line-height:1.6;}
+
+  .consistency-panel{margin-top:20px;}
+
+  footer{margin-top:30px; padding-top:14px; border-top:1px solid var(--line); font-family:var(--font-mono); font-size:10.5px; color:var(--ink-dim); line-height:1.7;}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header>
+    <div class="brand">
+      <div class="brand-mark"></div>
+      <div>
+        <h1>Bidik — Analisis Postur Pemanah</h1>
+        <div class="tagline">Prototype · deteksi pose otomatis + anotasi manual, tersinkron video</div>
+      </div>
+    </div>
+    <div class="file-control">
+      <label class="btn primary" for="videoInput">Muat video</label>
+      <input type="file" id="videoInput" accept="video/*">
+      <button class="btn" id="exportBtn" disabled>Ekspor data</button>
+    </div>
+  </header>
+
+  <div class="main">
+
+    <!-- LEFT -->
+    <div>
+      <div class="panel">
+        <h2>Tampilan</h2>
+        <div class="viewport" id="viewport">
+          <div class="empty-state" id="emptyState">
+            Belum ada video dimuat.<br>
+            Klik "Muat video" untuk mengunggah rekaman panahan<br>
+            (idealnya diambil dari samping/depan-belakang garis tembak, sehingga postur T terlihat penuh).
+          </div>
+          <video id="video" playsinline></video>
+          <canvas id="overlay"></canvas>
+          <div class="model-banner" id="modelBanner"></div>
+        </div>
+
+        <div class="transport">
+          <button class="btn small" id="stepBack">⟨ frame</button>
+          <button class="btn small" id="playPause" disabled>▶ putar</button>
+          <button class="btn small" id="stepFwd">frame ⟩</button>
+          <span class="time-readout" id="timeReadout">00:00.00 / fr —</span>
+          <span class="spacer"></span>
+          <label style="font-family:var(--font-mono);font-size:11px;color:var(--ink-dim);">fps</label>
+          <input type="number" id="fpsInput" value="30" min="1" max="120" style="width:56px;">
+          <select id="speedSelect">
+            <option value="1">1×</option>
+            <option value="0.5">0.5×</option>
+            <option value="0.25">0.25×</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="panel timeline-panel">
+        <h2>Linimasa &amp; Frame Tersimpan</h2>
+        <div class="scrub" id="scrub"><div class="playhead" id="playhead"></div></div>
+        <div class="frame-log" id="frameLog">
+          <div class="empty-log">Belum ada frame yang disimpan. Tempatkan/deteksi titik tubuh lalu klik "Simpan frame ini".</div>
+        </div>
+      </div>
+
+      <div class="panel consistency-panel">
+        <h2>Konsistensi Antar Repetisi <span class="sub">semakin kecil ± semakin konsisten</span></h2>
+        <div id="consistencyPanel"><div class="empty-log">Simpan minimal 2 frame dari fase yang sama (mis. beberapa kali "jangkar") untuk melihat skor konsistensi.</div></div>
+      </div>
+    </div>
+
+    <!-- RIGHT -->
+    <div>
+      <div class="panel">
+        <h2>Pengaturan</h2>
+        <div class="setting-row">
+          <label>Gaya panahan</label>
+          <select id="styleSelect">
+            <option value="recurve">Recurve / Barebow (Olympic)</option>
+            <option value="compound">Compound</option>
+            <option value="tradisional">Tradisional / Instinctive</option>
+          </select>
+        </div>
+        <div class="setting-row">
+          <label>Tangan penarik (dominan)</label>
+          <select id="handSelect">
+            <option value="kanan">Kanan — busur di tangan kiri</option>
+            <option value="kiri">Kiri — busur di tangan kanan</option>
+          </select>
+        </div>
+        <div class="style-desc" id="styleDesc"></div>
+      </div>
+
+      <div class="panel" style="margin-top:16px;">
+        <h2>Titik Tubuh</h2>
+        <div class="segmented" id="modeSegmented">
+          <button data-mode="manual" class="active">Manual</button>
+          <button data-mode="auto">Otomatis (AI)</button>
+        </div>
+        <div class="model-status" id="modelStatus"><span class="dot"></span><span id="modelStatusText">Mode manual — klik titik untuk menempatkan.</span></div>
+        <div class="live-toggle" id="liveToggleRow" style="display:none;">
+          <input type="checkbox" id="liveTracking">
+          <label for="liveTracking">Lacak terus saat video diputar (lebih berat)</label>
+        </div>
+        <div class="kp-hint">
+          <span id="modeHint">Pilih titik di bawah, lalu klik posisinya pada video. Titik yang sudah ada bisa digeser langsung dengan drag.</span>
+        </div>
+        <div class="kp-list" id="kpList"></div>
+        <div style="display:flex; gap:8px; flex-wrap:wrap;">
+          <button class="btn primary" id="saveFrame" style="flex:1;" disabled>Simpan frame ini</button>
+          <button class="btn" id="redetectBtn" style="display:none;">Deteksi ulang</button>
+          <button class="btn" id="clearPoints" disabled>Bersihkan</button>
+        </div>
+      </div>
+
+      <div class="panel" style="margin-top:16px;">
+        <h2>Pembacaan Sudut</h2>
+        <div class="gauges" id="gauges"></div>
+        <div id="extraMetrics"></div>
+
+        <div class="calib">
+          <button class="btn small" id="calibBtn">Kalibrasi jarak</button>
+          <span style="font-family:var(--font-mono); font-size:10.5px; color:var(--ink-dim);" id="calibStatus">belum dikalibrasi (satuan: px)</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <footer>
+    Catatan: alat ini adalah prototipe bantu-lihat, bukan pengganti pelatih bersertifikat. Mode otomatis menggunakan model
+    deteksi pose (MediaPipe Pose Landmarker) yang berjalan di peramban dan diunduh dari CDN saat pertama diaktifkan — perlu
+    koneksi internet sekali di awal, video tidak diunggah ke server manapun. Titik hasil deteksi otomatis tetap bisa digeser
+    untuk koreksi. Rentang "ideal" bersifat panduan umum per gaya panahan dan dapat bervariasi antar individu/pelatih.
+  </footer>
+
+</div>
+
+<script>
+(function(){
+  const video = document.getElementById('video');
+  const canvas = document.getElementById('overlay');
+  const ctx = canvas.getContext('2d');
+  const viewport = document.getElementById('viewport');
+  const emptyState = document.getElementById('emptyState');
+  const videoInput = document.getElementById('videoInput');
+  const playPauseBtn = document.getElementById('playPause');
+  const stepBack = document.getElementById('stepBack');
+  const stepFwd = document.getElementById('stepFwd');
+  const timeReadout = document.getElementById('timeReadout');
+  const fpsInput = document.getElementById('fpsInput');
+  const speedSelect = document.getElementById('speedSelect');
+  const kpListEl = document.getElementById('kpList');
+  const saveFrameBtn = document.getElementById('saveFrame');
+  const clearPointsBtn = document.getElementById('clearPoints');
+  const redetectBtn = document.getElementById('redetectBtn');
+  const gaugesEl = document.getElementById('gauges');
+  const extraMetricsEl = document.getElementById('extraMetrics');
+  const frameLogEl = document.getElementById('frameLog');
+  const scrubEl = document.getElementById('scrub');
+  const playheadEl = document.getElementById('playhead');
+  const exportBtn = document.getElementById('exportBtn');
+  const calibBtn = document.getElementById('calibBtn');
+  const calibStatus = document.getElementById('calibStatus');
+  const styleSelect = document.getElementById('styleSelect');
+  const handSelect = document.getElementById('handSelect');
+  const styleDescEl = document.getElementById('styleDesc');
+  const modeSegmented = document.getElementById('modeSegmented');
+  const modelStatusEl = document.getElementById('modelStatus');
+  const modelStatusText = document.getElementById('modelStatusText');
+  const modelBanner = document.getElementById('modelBanner');
+  const liveToggleRow = document.getElementById('liveToggleRow');
+  const liveTrackingCb = document.getElementById('liveTracking');
+  const modeHintEl = document.getElementById('modeHint');
+  const consistencyPanel = document.getElementById('consistencyPanel');
+
+  // ---------------- keypoint definitions ----------------
+  const KP_DEFS = [
+    {id:'kepala',            label:'Kepala',                       color:'#EDE6D6'},
+    {id:'dagu',              label:'Dagu / titik jangkar',         color:'#C9A227'},
+    {id:'bahuBusur',         label:'Bahu (lengan busur)',          color:'#7FA3D9'},
+    {id:'sikuBusur',         label:'Siku (lengan busur)',          color:'#7FA3D9'},
+    {id:'pergelanganBusur',  label:'Pergelangan (lengan busur)',   color:'#7FA3D9'},
+    {id:'bahuTarik',         label:'Bahu (lengan tarik)',          color:'#D98A6A'},
+    {id:'sikuTarik',         label:'Siku (lengan tarik)',          color:'#D98A6A'},
+    {id:'pergelanganTarik',  label:'Pergelangan (lengan tarik)',   color:'#D98A6A'},
+    {id:'pinggul',           label:'Pusat pinggul',                color:'#EDE6D6'},
+    {id:'kakiBusur',         label:'Kaki sisi lengan busur',       color:'#9FAA93'},
+    {id:'kakiTarik',         label:'Kaki sisi lengan tarik',       color:'#9FAA93'},
+  ];
+  const SKELETON = [
+    ['bahuBusur','bahuTarik'],
+    ['bahuBusur','sikuBusur'], ['sikuBusur','pergelanganBusur'],
+    ['bahuTarik','sikuTarik'], ['sikuTarik','pergelanganTarik'],
+    ['kepala','dagu'],
+    ['pinggul','kakiBusur'], ['pinggul','kakiTarik'],
+  ];
+
+  let activeKp = null;
+  let points = {};       // {id:{x,y}} in canvas natural px
+  let pointMeta = {};    // {id:{source:'auto'|'manual', confidence:0..1}}
+  let savedFrames = [];  // [{t, points, meta, metrics}]
+  let draggingId = null;
+  let calib = null;
+  let calibrating = false;
+  let calibPts = [];
+
+  let mode = 'manual';          // 'manual' | 'auto'
+  let archerStyle = 'recurve';  // 'recurve' | 'compound' | 'tradisional'
+  let handedness = 'kanan';     // 'kanan' | 'kiri'  (kanan = draws with right hand, bow in left)
+  let poseLandmarker = null;
+  let modelLoading = false;
+  let modelReady = false;
+  let liveTracking = false;
+  const supportsVFC = 'requestVideoFrameCallback' in HTMLVideoElement.prototype;
+
+  // ---------------- style descriptions & ideal ranges ----------------
+  const STYLE_INFO = {
+    recurve: {
+      label:'Recurve / Barebow',
+      desc:'Fokus klasik: lengan busur lurus tanpa terkunci, bahu sejajar (T-form), badan tegak, dan titik jangkar konsisten di dagu/rahang.',
+      ideal:{ sikuBusur:[155,180], shoulderTilt:[-6,6], spineLean:[-6,6] },
+      elbowNote:'idealnya siku tarik sejajar atau sedikit di atas garis bahu–panah.'
+    },
+    compound: {
+      label:'Compound',
+      desc:'Beban ditahan let-off sehingga bentuk lebih rileks, tapi konsistensi jangkar (posisi peep/kabel di wajah) dan garis tembak jadi kunci utama repetisi.',
+      ideal:{ sikuBusur:[150,175], shoulderTilt:[-6,6], spineLean:[-8,8] },
+      elbowNote:'siku tarik sering dijaga sedikit lebih tinggi untuk menjaga garis tembak akibat let-off.'
+    },
+    tradisional: {
+      label:'Tradisional / Instinctive',
+      desc:'Variasi postur lebih besar dan wajar: busur sering dicant (dimiringkan), sebagian penembak tidak memakai jangkar tetap (bidik instingtif).',
+      ideal:{ sikuBusur:[145,178], shoulderTilt:[-10,10], spineLean:[-10,10] },
+      elbowNote:'toleransi lebih lebar — variasi antar tembakan pada gaya ini wajar, bukan otomatis "kesalahan".'
+    }
+  };
+
+  function refreshStyleDesc(){
+    const info = STYLE_INFO[archerStyle];
+    styleDescEl.textContent = info.desc;
+  }
+  styleSelect.addEventListener('change', ()=>{ archerStyle = styleSelect.value; refreshStyleDesc(); draw(); renderConsistency(); });
+  handSelect.addEventListener('change', ()=>{ handedness = handSelect.value; });
+  refreshStyleDesc();
+
+  // ---------------- keypoint list UI ----------------
+  function renderKpList(){
+    kpListEl.innerHTML = '';
+    KP_DEFS.forEach(kp=>{
+      const meta = pointMeta[kp.id];
+      const btn = document.createElement('button');
+      let cls = 'kp-btn';
+      if(activeKp===kp.id) cls += ' active';
+      if(points[kp.id]) cls += ' placed';
+      if(meta && meta.source==='auto') cls += ' auto-src';
+      btn.className = cls;
+      let statusTxt = '—';
+      if(points[kp.id]){
+        statusTxt = meta && meta.source==='auto' ? `AI ${Math.round((meta.confidence||1)*100)}%` : '✓ manual';
+      }
+      btn.innerHTML = `<span class="kp-dot" style="background:${kp.color}"></span><span>${kp.label}</span><span class="kp-status">${statusTxt}</span>`;
+      btn.onclick = ()=>{ activeKp = kp.id; renderKpList(); };
+      kpListEl.appendChild(btn);
+    });
+  }
+  renderKpList();
+
+  // ---------------- mode switching ----------------
+  function setModelStatus(text, state){
+    modelStatusText.textContent = text;
+    modelStatusEl.className = 'model-status' + (state?(' '+state):'');
+    modelBanner.textContent = text;
+    modelBanner.classList.toggle('show', state==='loading' || state==='error');
+  }
+  function applyModeUI(){
+    modeSegmented.querySelectorAll('button').forEach(b=> b.classList.toggle('active', b.dataset.mode===mode));
+    if(mode==='auto'){
+      modeHintEl.textContent = 'Titik dideteksi otomatis dari video. Geser titik kapan saja untuk koreksi manual — koreksi tidak akan tertimpa sampai kamu klik "Deteksi ulang".';
+      redetectBtn.style.display = 'inline-block';
+      liveToggleRow.style.display = supportsVFC ? 'flex' : 'none';
+    } else {
+      modeHintEl.textContent = 'Pilih titik di bawah, lalu klik posisinya pada video. Titik yang sudah ada bisa digeser langsung dengan drag.';
+      redetectBtn.style.display = 'none';
+      liveToggleRow.style.display = 'none';
+      setModelStatus('Mode manual — klik titik untuk menempatkan.', '');
+    }
+  }
+  modeSegmented.querySelectorAll('button').forEach(b=>{
+    b.addEventListener('click', ()=>{
+      mode = b.dataset.mode;
+      applyModeUI();
+      if(mode==='auto'){
+        if(!modelReady && !modelLoading) loadPoseModel();
+        else if(modelReady && video.videoWidth) runDetection();
+      }
+    });
+  });
+  liveTrackingCb.addEventListener('change', ()=>{ liveTracking = liveTrackingCb.checked; });
+  applyModeUI();
+
+  // ---------------- pose model (MediaPipe Tasks Vision, loaded on demand) ----------------
+  async function loadPoseModel(){
+    modelLoading = true;
+    setModelStatus('Memuat model AI dari internet (± 10–25 MB, sekali saja)…', 'loading');
+    try{
+      const mp = await import('https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@latest/+esm');
+      const { PoseLandmarker, FilesetResolver } = mp;
+      const vision = await FilesetResolver.forVisionTasks('https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@latest/wasm');
+      const modelUrl = 'https://storage.googleapis.com/mediapipe-models/pose_landmarker/pose_landmarker_full/float16/1/pose_landmarker_full.task';
+      try{
+        poseLandmarker = await PoseLandmarker.createFromOptions(vision, {
+          baseOptions:{ modelAssetPath: modelUrl, delegate:'GPU' },
+          runningMode:'IMAGE', numPoses:1
+        });
+      } catch(gpuErr){
+        poseLandmarker = await PoseLandmarker.createFromOptions(vision, {
+          baseOptions:{ modelAssetPath: modelUrl, delegate:'CPU' },
+          runningMode:'IMAGE', numPoses:1
+        });
+      }
+      modelReady = true; modelLoading = false;
+      setModelStatus('Model siap. Titik terdeteksi otomatis pada frame ini.', 'ready');
+      if(video.videoWidth) runDetection();
+    } catch(err){
+      console.error('Gagal memuat model pose:', err);
+      modelLoading = false; modelReady = false;
+      setModelStatus('Gagal memuat model AI (perlu koneksi internet ke cdn.jsdelivr.net & storage.googleapis.com). Kembali ke mode manual.', 'error');
+      mode = 'manual';
+      applyModeUI();
+    }
+  }
+
+  const LM = { NOSE:0, MOUTH_L:9, MOUTH_R:10, SH_L:11, SH_R:12, EL_L:13, EL_R:14, WR_L:15, WR_R:16, HIP_L:23, HIP_R:24, ANK_L:27, ANK_R:28 };
+
+  function avgLm(a,b){
+    if(!a||!b) return null;
+    return {x:(a.x+b.x)/2, y:(a.y+b.y)/2, visibility: Math.min(a.visibility??1, b.visibility??1)};
+  }
+  function setPointFromLandmark(id, lm){
+    if(!lm) return;
+    const vis = lm.visibility ?? 1;
+    if(vis < 0.2) return; // too uncertain — leave slot for manual placement
+    points[id] = {x: lm.x*canvas.width, y: lm.y*canvas.height};
+    pointMeta[id] = {source:'auto', confidence:vis};
+  }
+  function applyLandmarks(lm){
+    const bowIsLeft = handedness === 'kanan'; // right-handed archer -> bow arm is subject's LEFT side
+    setPointFromLandmark('kepala', lm[LM.NOSE]);
+    setPointFromLandmark('dagu', avgLm(lm[LM.MOUTH_L], lm[LM.MOUTH_R]));
+    setPointFromLandmark('bahuBusur', bowIsLeft? lm[LM.SH_L] : lm[LM.SH_R]);
+    setPointFromLandmark('sikuBusur', bowIsLeft? lm[LM.EL_L] : lm[LM.EL_R]);
+    setPointFromLandmark('pergelanganBusur', bowIsLeft? lm[LM.WR_L] : lm[LM.WR_R]);
+    setPointFromLandmark('bahuTarik', bowIsLeft? lm[LM.SH_R] : lm[LM.SH_L]);
+    setPointFromLandmark('sikuTarik', bowIsLeft? lm[LM.EL_R] : lm[LM.EL_L]);
+    setPointFromLandmark('pergelanganTarik', bowIsLeft? lm[LM.WR_R] : lm[LM.WR_L]);
+    setPointFromLandmark('pinggul', avgLm(lm[LM.HIP_L], lm[LM.HIP_R]));
+    setPointFromLandmark('kakiBusur', bowIsLeft? lm[LM.ANK_L] : lm[LM.ANK_R]);
+    setPointFromLandmark('kakiTarik', bowIsLeft? lm[LM.ANK_R] : lm[LM.ANK_L]);
+    renderKpList(); draw();
+  }
+  function runDetection(){
+    if(!modelReady || !video.videoWidth) return;
+    let result;
+    try{ result = poseLandmarker.detect(video); }
+    catch(e){ console.error(e); return; }
+    if(!result || !result.landmarks || !result.landmarks.length){
+      setModelStatus('Orang tidak terdeteksi pada frame ini — sesuaikan manual atau coba frame lain.', 'error');
+      return;
+    }
+    applyLandmarks(result.landmarks[0]);
+    setModelStatus('Terdeteksi otomatis. Geser titik untuk koreksi bila perlu.', 'ready');
+  }
+  redetectBtn.addEventListener('click', runDetection);
+
+  // ---------------- video load ----------------
+  videoInput.addEventListener('change', e=>{
+    const file = e.target.files[0];
+    if(!file) return;
+    const url = URL.createObjectURL(file);
+    video.src = url;
+    emptyState.style.display = 'none';
+    video.style.display = 'block';
+    canvas.style.display = 'block';
+  });
+
+  video.addEventListener('loadedmetadata', ()=>{
+    playPauseBtn.disabled = false;
+    saveFrameBtn.disabled = false;
+    clearPointsBtn.disabled = false;
+    exportBtn.disabled = false;
+    resizeCanvas();
+    draw();
+    if(mode==='auto' && modelReady) runDetection();
+  });
+  window.addEventListener('resize', resizeCanvas);
+
+  function resizeCanvas(){
+    if(!video.videoWidth) return;
+    const rect = video.getBoundingClientRect();
+    canvas.style.width = rect.width + 'px';
+    canvas.style.height = rect.height + 'px';
+    canvas.width = video.videoWidth;
+    canvas.height = video.videoHeight;
+    draw();
+  }
+
+  // ---------------- transport ----------------
+  playPauseBtn.addEventListener('click', ()=>{
+    if(video.paused){ video.play(); playPauseBtn.textContent='❚❚ jeda'; }
+    else{ video.pause(); playPauseBtn.textContent='▶ putar'; }
+  });
+  video.addEventListener('pause', ()=>{ playPauseBtn.textContent='▶ putar'; });
+  video.addEventListener('play', ()=>{
+    playPauseBtn.textContent='❚❚ jeda';
+    if(supportsVFC) video.requestVideoFrameCallback(liveLoop);
+  });
+
+  function liveLoop(now, metadata){
+    if(mode==='auto' && liveTracking && modelReady && !video.paused && !video.ended){
+      runDetection();
+    }
+    if(supportsVFC && !video.paused && !video.ended){
+      video.requestVideoFrameCallback(liveLoop);
+    }
+  }
+
+  function fps(){ return Math.max(1, parseFloat(fpsInput.value)||30); }
+  stepBack.addEventListener('click', ()=>{ video.pause(); video.currentTime = Math.max(0, video.currentTime - 1/fps()); });
+  stepFwd.addEventListener('click', ()=>{ video.pause(); video.currentTime = Math.min(video.duration||0, video.currentTime + 1/fps()); });
+  speedSelect.addEventListener('change', ()=>{ video.playbackRate = parseFloat(speedSelect.value); });
+
+  video.addEventListener('seeked', ()=>{
+    if(mode==='auto' && modelReady) runDetection();
+  });
+  video.addEventListener('timeupdate', updateTimeUI);
+  function updateTimeUI(){
+    const t = video.currentTime||0;
+    const mm = String(Math.floor(t/60)).padStart(2,'0');
+    const ss = (t%60).toFixed(2).padStart(5,'0');
+    const frameNo = Math.round(t*fps());
+    timeReadout.textContent = `${mm}:${ss} / fr ${frameNo}`;
+    if(video.duration) playheadEl.style.left = (t/video.duration*100)+'%';
+    draw();
+  }
+
+  // ---------------- drawing ----------------
+  function draw(){
+    if(!canvas.width) return;
+    ctx.clearRect(0,0,canvas.width,canvas.height);
+    const s = canvas.width/1000;
+
+    if(points.bahuBusur){
+      ctx.save(); ctx.strokeStyle='rgba(201,162,39,0.45)'; ctx.setLineDash([6*s,6*s]); ctx.lineWidth=1.4*s;
+      ctx.beginPath(); ctx.moveTo(0, points.bahuBusur.y); ctx.lineTo(canvas.width, points.bahuBusur.y); ctx.stroke(); ctx.restore();
+    }
+    if(points.pinggul){
+      ctx.save(); ctx.strokeStyle='rgba(201,162,39,0.3)'; ctx.setLineDash([6*s,6*s]); ctx.lineWidth=1.4*s;
+      ctx.beginPath(); ctx.moveTo(points.pinggul.x, 0); ctx.lineTo(points.pinggul.x, canvas.height); ctx.stroke(); ctx.restore();
+    }
+
+    ctx.lineWidth = 2.4*s;
+    SKELETON.forEach(([a,b])=>{
+      if(points[a] && points[b]){
+        ctx.strokeStyle = 'rgba(237,230,214,0.85)';
+        ctx.beginPath(); ctx.moveTo(points[a].x, points[a].y); ctx.lineTo(points[b].x, points[b].y); ctx.stroke();
+      }
+    });
+    if(points.kepala && points.pinggul){
+      ctx.save(); ctx.strokeStyle='rgba(201,162,39,0.9)'; ctx.setLineDash([5*s,4*s]); ctx.lineWidth=2*s;
+      ctx.beginPath(); ctx.moveTo(points.kepala.x, points.kepala.y); ctx.lineTo(points.pinggul.x, points.pinggul.y); ctx.stroke(); ctx.restore();
+    }
+
+    KP_DEFS.forEach(kp=>{
+      const p = points[kp.id];
+      if(!p) return;
+      const meta = pointMeta[kp.id];
+      const isAuto = meta && meta.source==='auto';
+      const alpha = isAuto ? Math.max(0.35, meta.confidence||1) : 1;
+      ctx.globalAlpha = alpha;
+      ctx.beginPath(); ctx.arc(p.x,p.y, 7*s, 0, Math.PI*2);
+      ctx.fillStyle = kp.color; ctx.fill();
+      ctx.lineWidth = 1.6*s;
+      ctx.strokeStyle = (activeKp===kp.id) ? '#FFFFFF' : 'rgba(0,0,0,0.5)';
+      ctx.stroke();
+      if(isAuto){
+        ctx.globalAlpha = 1;
+        ctx.beginPath(); ctx.arc(p.x,p.y, 11*s, 0, Math.PI*2);
+        ctx.setLineDash([2*s,2*s]);
+        ctx.strokeStyle = 'rgba(127,163,217,0.8)'; ctx.lineWidth = 1*s;
+        ctx.stroke(); ctx.setLineDash([]);
+      }
+      ctx.globalAlpha = 1;
+    });
+
+    if(calibPts.length){
+      ctx.fillStyle = '#A23A2E';
+      calibPts.forEach(p=>{ ctx.beginPath(); ctx.arc(p.x,p.y,5*s,0,Math.PI*2); ctx.fill(); });
+      if(calibPts.length===2){
+        ctx.strokeStyle = '#A23A2E'; ctx.lineWidth = 2*s;
+        ctx.beginPath(); ctx.moveTo(calibPts[0].x, calibPts[0].y); ctx.lineTo(calibPts[1].x, calibPts[1].y); ctx.stroke();
+      }
+    }
+
+    computeAndRenderMetrics();
+  }
+
+  // ---------------- canvas interaction ----------------
+  function canvasCoords(evt){
+    const rect = canvas.getBoundingClientRect();
+    const x = (evt.clientX-rect.left) * (canvas.width/rect.width);
+    const y = (evt.clientY-rect.top) * (canvas.height/rect.height);
+    return {x,y};
+  }
+  function nearestPoint(pos, thresh){
+    let best=null, bestD=thresh;
+    KP_DEFS.forEach(kp=>{
+      const p = points[kp.id];
+      if(!p) return;
+      const d = Math.hypot(p.x-pos.x, p.y-pos.y);
+      if(d<bestD){ bestD=d; best=kp.id; }
+    });
+    return best;
+  }
+  canvas.addEventListener('mousedown', e=>{
+    const pos = canvasCoords(e);
+    const hitThresh = canvas.width*0.02;
+    if(calibrating){
+      calibPts.push(pos);
+      if(calibPts.length===2){
+        const pxDist = Math.hypot(calibPts[1].x-calibPts[0].x, calibPts[1].y-calibPts[0].y);
+        const real = parseFloat(prompt('Berapa jarak sebenarnya antara dua titik ini? (cm)','60'));
+        if(real && real>0){
+          calib = {pxDist, realCm:real, scale: real/pxDist};
+          calibStatus.textContent = `terkalibrasi: ${real} cm ≈ ${pxDist.toFixed(0)} px`;
+        }
+        calibrating = false; calibPts = [];
+      }
+      draw(); return;
+    }
+    const hit = nearestPoint(pos, hitThresh);
+    if(hit){ draggingId = hit; activeKp = hit; renderKpList(); return; }
+    if(activeKp && mode==='manual'){
+      points[activeKp] = pos;
+      pointMeta[activeKp] = {source:'manual', confidence:1};
+      renderKpList(); draw();
+    }
+  });
+  canvas.addEventListener('mousemove', e=>{
+    if(!draggingId) return;
+    points[draggingId] = canvasCoords(e);
+    pointMeta[draggingId] = {source:'manual', confidence:1};
+    draw();
+  });
+  window.addEventListener('mouseup', ()=>{ if(draggingId){ renderKpList(); } draggingId=null; });
+
+  clearPointsBtn.addEventListener('click', ()=>{
+    if(confirm('Bersihkan semua titik pada frame saat ini?')){ points={}; pointMeta={}; renderKpList(); draw(); }
+  });
+  calibBtn.addEventListener('click', ()=>{
+    calibrating = true; calibPts = [];
+    calibStatus.textContent = 'klik dua titik acuan pada video (mis. panjang riser busur)…';
+  });
+
+  // ---------------- angle math ----------------
+  function angleAt(A,B,C){
+    if(!A||!B||!C) return null;
+    const v1 = {x:A.x-B.x, y:A.y-B.y}, v2 = {x:C.x-B.x, y:C.y-B.y};
+    const dot = v1.x*v2.x + v1.y*v2.y;
+    const m1 = Math.hypot(v1.x,v1.y), m2 = Math.hypot(v2.x,v2.y);
+    if(m1===0||m2===0) return null;
+    let cos = Math.max(-1,Math.min(1, dot/(m1*m2)));
+    return Math.acos(cos)*180/Math.PI;
+  }
+  function lineAngleFromHorizontal(A,B){
+    if(!A||!B) return null;
+    return Math.atan2(B.y-A.y, B.x-A.x)*180/Math.PI;
+  }
+  function lineAngleFromVertical(A,B){
+    if(!A||!B) return null;
+    return Math.atan2(B.x-A.x, -(B.y-A.y))*180/Math.PI;
+  }
+  function px2unit(px){
+    if(calib) return {v:(px*calib.scale).toFixed(1), u:'cm'};
+    return {v:px.toFixed(0), u:'px'};
+  }
+  function currentMetrics(){
+    const m = {};
+    m.sikuBusur = angleAt(points.bahuBusur, points.sikuBusur, points.pergelanganBusur);
+    m.shoulderTilt = lineAngleFromHorizontal(points.bahuBusur, points.bahuTarik);
+    m.spineLean = lineAngleFromVertical(points.pinggul, points.kepala);
+    m.elbowHeightPx = (points.bahuTarik && points.sikuTarik) ? (points.bahuTarik.y - points.sikuTarik.y) : null;
+    m.anchorPx = (points.dagu && points.pergelanganTarik) ? Math.hypot(points.dagu.x-points.pergelanganTarik.x, points.dagu.y-points.pergelanganTarik.y) : null;
+    m.stancePx = (points.kakiBusur && points.kakiTarik) ? Math.hypot(points.kakiBusur.x-points.kakiTarik.x, points.kakiBusur.y-points.kakiTarik.y) : null;
+    return m;
+  }
+
+  // ---------------- gauges ----------------
+  function gaugeSVG(valueDeg, min, max, idealMin, idealMax){
+    const W=110,H=68,cx=55,cy=60,r=48;
+    function angFor(v){ const t=(v-min)/(max-min); return Math.PI - t*Math.PI; }
+    function pt(v){ const a=angFor(v); return {x: cx+r*Math.cos(a), y: cy-r*Math.sin(a)}; }
+    const arcPath=(v0,v1)=>{
+      const p0=pt(v0), p1=pt(v1);
+      const large = Math.abs(angFor(v1)-angFor(v0)) > Math.PI ? 1:0;
+      return `M ${p0.x} ${p0.y} A ${r} ${r} 0 ${large} 1 ${p1.x} ${p1.y}`;
+    };
+    let idealArc='';
+    if(idealMin!=null && idealMax!=null){
+      idealArc = `<path d="${arcPath(Math.max(min,idealMin), Math.min(max,idealMax))}" stroke="var(--good)" stroke-width="7" fill="none" stroke-linecap="round" opacity="0.55"/>`;
+    }
+    let needle='', valTxt='—';
+    if(valueDeg!=null){
+      const v = Math.max(min,Math.min(max,valueDeg));
+      const a = angFor(v);
+      const nx = cx+(r-10)*Math.cos(a), ny = cy-(r-10)*Math.sin(a);
+      needle = `<line x1="${cx}" y1="${cy}" x2="${nx}" y2="${ny}" stroke="var(--gold)" stroke-width="3" stroke-linecap="round"/><circle cx="${cx}" cy="${cy}" r="3.5" fill="var(--gold)"/>`;
+      valTxt = Math.round(valueDeg)+'°';
+    }
+    return { svg:`<svg width="${W}" height="${H+4}" viewBox="0 0 ${W} ${H+4}">
+        <path d="${arcPath(min,max)}" stroke="var(--line)" stroke-width="7" fill="none" stroke-linecap="round"/>
+        ${idealArc}${needle}
+      </svg>`, valTxt };
+  }
+
+  function currentGaugeDefs(){
+    const info = STYLE_INFO[archerStyle];
+    return [
+      {key:'sikuBusur', label:'Siku Lengan Busur', min:90,max:190, ideal:info.ideal.sikuBusur,
+        note:v=> v==null?'' : (v>=info.ideal.sikuBusur[0] ? 'baik — tidak terkunci' : (v<info.ideal.sikuBusur[0]-10 ? 'terlalu tertekuk' : 'sedikit tertekuk'))},
+      {key:'shoulderTilt', label:'Kemiringan Bahu (T-Form)', min:-30,max:30, ideal:info.ideal.shoulderTilt,
+        note:v=> v==null?'' : (Math.abs(v)<=info.ideal.shoulderTilt[1] ? 'bahu cukup sejajar' : (v>0?'bahu tarik turun':'bahu busur turun'))},
+      {key:'spineLean', label:'Kemiringan Punggung', min:-30,max:30, ideal:info.ideal.spineLean,
+        note:v=> v==null?'' : (Math.abs(v)<=info.ideal.spineLean[1] ? 'tubuh cukup tegak' : (v>0?'condong ke depan':'condong ke belakang'))},
+    ];
+  }
+
+  function computeAndRenderMetrics(){
+    const m = currentMetrics();
+    const defs = currentGaugeDefs();
+    gaugesEl.innerHTML = '';
+    defs.forEach(g=>{
+      const val = m[g.key];
+      const {svg, valTxt} = gaugeSVG(val, g.min, g.max, g.ideal[0], g.ideal[1]);
+      const card = document.createElement('div');
+      card.className = 'gauge-card';
+      card.innerHTML = `${svg}<div class="gauge-value">${valTxt}</div><div class="gauge-label">${g.label}</div><div class="gauge-note">${g.note(val)}</div>`;
+      gaugesEl.appendChild(card);
+    });
+
+    const info = STYLE_INFO[archerStyle];
+    extraMetricsEl.innerHTML = '';
+    const rows = [];
+    if(m.elbowHeightPx!=null){
+      const u = px2unit(Math.abs(m.elbowHeightPx));
+      rows.push(['Selisih tinggi siku tarik vs bahu', `${m.elbowHeightPx>=0?'+':'-'}${u.v} ${u.u} ${m.elbowHeightPx>=0?'(lebih tinggi)':'(lebih rendah)'}`, info.elbowNote]);
+    }
+    if(m.anchorPx!=null){
+      const u = px2unit(m.anchorPx);
+      let note = 'bandingkan antar frame tersimpan untuk cek konsistensi jangkar.';
+      if(archerStyle==='tradisional') note = 'gaya tradisional umumnya tidak memakai jangkar tetap — variasi di sini wajar.';
+      rows.push(['Jarak dagu – pergelangan tarik (jangkar)', `${u.v} ${u.u}`, note]);
+    }
+    if(m.stancePx!=null){
+      const u = px2unit(m.stancePx);
+      rows.push(['Lebar posisi kaki', `${u.v} ${u.u}`, null]);
+    }
+    if(rows.length===0){
+      extraMetricsEl.innerHTML = '<div style="font-family:var(--font-mono);font-size:11px;color:var(--ink-dim);">Tempatkan atau deteksi titik tubuh untuk melihat data tambahan.</div>';
+    } else {
+      rows.forEach(([label,val,note])=>{
+        const r = document.createElement('div');
+        r.className = 'metric-row';
+        r.innerHTML = `<span class="m-label">${label}</span><span class="m-val">${val}</span>`;
+        extraMetricsEl.appendChild(r);
+        if(note){
+          const n = document.createElement('div');
+          n.className = 'metric-note';
+          n.textContent = note;
+          extraMetricsEl.appendChild(n);
+        }
+      });
+    }
+    return m;
+  }
+
+  // ---------------- save / timeline ----------------
+  saveFrameBtn.addEventListener('click', ()=>{
+    if(Object.keys(points).length===0){ alert('Tempatkan atau deteksi minimal satu titik terlebih dahulu.'); return; }
+    const t = video.currentTime;
+    const metrics = currentMetrics();
+    const existingIdx = savedFrames.findIndex(f=>Math.abs(f.t-t)<0.01);
+    const frame = {
+      t, style:archerStyle, hand:handedness,
+      points: JSON.parse(JSON.stringify(points)),
+      meta: JSON.parse(JSON.stringify(pointMeta)),
+      metrics
+    };
+    if(existingIdx>=0) savedFrames[existingIdx]=frame; else savedFrames.push(frame);
+    savedFrames.sort((a,b)=>a.t-b.t);
+    renderFrameLog(); renderScrubMarks(); renderConsistency();
+  });
+
+  function fmtT(t){
+    const mm = String(Math.floor(t/60)).padStart(2,'0');
+    const ss = (t%60).toFixed(2).padStart(5,'0');
+    return `${mm}:${ss}`;
+  }
+  function summarize(metrics){
+    const bits = [];
+    if(metrics.sikuBusur!=null) bits.push(`siku busur ${Math.round(metrics.sikuBusur)}°`);
+    if(metrics.shoulderTilt!=null) bits.push(`bahu ${metrics.shoulderTilt>=0?'+':''}${Math.round(metrics.shoulderTilt)}°`);
+    if(metrics.spineLean!=null) bits.push(`punggung ${metrics.spineLean>=0?'+':''}${Math.round(metrics.spineLean)}°`);
+    return bits.join(' · ') || 'titik parsial';
+  }
+  function renderFrameLog(){
+    if(savedFrames.length===0){
+      frameLogEl.innerHTML = '<div class="empty-log">Belum ada frame yang disimpan. Tempatkan/deteksi titik tubuh lalu klik "Simpan frame ini".</div>';
+      return;
+    }
+    frameLogEl.innerHTML = '';
+    savedFrames.forEach((f,i)=>{
+      const row = document.createElement('div');
+      row.className = 'frame-row';
+      row.innerHTML = `
+        <span class="t">${fmtT(f.t)}</span>
+        <span class="summary">${summarize(f.metrics)}</span>
+        <button class="btn small" data-i="${i}" data-act="goto">buka</button>
+        <button class="btn small" data-i="${i}" data-act="del">hapus</button>
+      `;
+      frameLogEl.appendChild(row);
+    });
+    frameLogEl.querySelectorAll('button').forEach(b=>{
+      b.addEventListener('click', ()=>{
+        const i = parseInt(b.dataset.i);
+        if(b.dataset.act==='goto'){
+          video.currentTime = savedFrames[i].t;
+          points = JSON.parse(JSON.stringify(savedFrames[i].points));
+          pointMeta = JSON.parse(JSON.stringify(savedFrames[i].meta || {}));
+          renderKpList(); draw();
+        } else {
+          savedFrames.splice(i,1);
+          renderFrameLog(); renderScrubMarks(); renderConsistency();
+        }
+      });
+    });
+  }
+  function renderScrubMarks(){
+    scrubEl.querySelectorAll('.mark').forEach(m=>m.remove());
+    if(!video.duration) return;
+    savedFrames.forEach(f=>{
+      const mark = document.createElement('div');
+      mark.className='mark';
+      mark.style.left = (f.t/video.duration*100)+'%';
+      mark.title = fmtT(f.t);
+      mark.addEventListener('click', (e)=>{ e.stopPropagation(); video.currentTime = f.t; });
+      scrubEl.appendChild(mark);
+    });
+  }
+  scrubEl.addEventListener('click', e=>{
+    if(!video.duration) return;
+    const rect = scrubEl.getBoundingClientRect();
+    const frac = (e.clientX-rect.left)/rect.width;
+    video.currentTime = frac*video.duration;
+  });
+
+  // ---------------- consistency summary ----------------
+  function mean(arr){ return arr.reduce((a,b)=>a+b,0)/arr.length; }
+  function stdev(arr){ const m=mean(arr); return Math.sqrt(arr.reduce((a,b)=>a+(b-m)*(b-m),0)/arr.length); }
+  function renderConsistency(){
+    if(savedFrames.length<2){
+      consistencyPanel.innerHTML = '<div class="empty-log">Simpan minimal 2 frame dari fase yang sama (mis. beberapa kali "jangkar") untuk melihat skor konsistensi.</div>';
+      return;
+    }
+    const fields = [
+      ['sikuBusur','Sudut siku busur','°',1],
+      ['shoulderTilt','Kemiringan bahu','°',1],
+      ['spineLean','Kemiringan punggung','°',1],
+      ['anchorPx','Jarak jangkar', calib?'cm':'px', calib?calib.scale:1],
+    ];
+    consistencyPanel.innerHTML = '';
+    let any = false;
+    fields.forEach(([key,label,unit,scale])=>{
+      const vals = savedFrames.map(f=>f.metrics[key]).filter(v=>v!=null).map(v=>v*scale);
+      if(vals.length<2) return;
+      any = true;
+      const m = mean(vals), sd = stdev(vals);
+      const row = document.createElement('div');
+      row.className = 'metric-row';
+      row.innerHTML = `<span class="m-label">${label}</span><span class="m-val">${m.toFixed(1)} ± ${sd.toFixed(1)} ${unit}</span>`;
+      consistencyPanel.appendChild(row);
+    });
+    if(!any) consistencyPanel.innerHTML = '<div class="empty-log">Belum cukup data sejenis pada frame tersimpan.</div>';
+  }
+
+  // ---------------- export ----------------
+  exportBtn.addEventListener('click', ()=>{
+    if(savedFrames.length===0){ alert('Belum ada frame tersimpan untuk diekspor.'); return; }
+    const data = savedFrames.map(f=>({
+      waktu_detik: +f.t.toFixed(3),
+      gaya: f.style, tangan_penarik: f.hand,
+      titik: f.points,
+      sumber_titik: f.meta,
+      metrik: {
+        sudut_siku_busur_deg: f.metrics.sikuBusur!=null? +f.metrics.sikuBusur.toFixed(1): null,
+        kemiringan_bahu_deg: f.metrics.shoulderTilt!=null? +f.metrics.shoulderTilt.toFixed(1): null,
+        kemiringan_punggung_deg: f.metrics.spineLean!=null? +f.metrics.spineLean.toFixed(1): null,
+        selisih_tinggi_siku_tarik_px: f.metrics.elbowHeightPx!=null? +f.metrics.elbowHeightPx.toFixed(1): null,
+        jarak_jangkar_px: f.metrics.anchorPx!=null? +f.metrics.anchorPx.toFixed(1): null,
+        lebar_kaki_px: f.metrics.stancePx!=null? +f.metrics.stancePx.toFixed(1): null,
+      }
+    }));
+    const payload = {kalibrasi: calib, gaya_default: archerStyle, tangan_default: handedness, frame: data};
+    const blob = new Blob([JSON.stringify(payload,null,2)], {type:'application/json'});
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(blob);
+    a.download = 'analisis-postur-pemanah.json';
+    a.click();
+  });
+
+})();
+</script>
+</body>
+</html>
