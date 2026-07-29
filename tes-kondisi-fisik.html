@@ -1,0 +1,931 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Tes Kondisi Fisik — Aghna Archery Club</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,600;9..144,700&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --green-900:#0D0D0D;--green-800:#141414;--green-700:#1F1F1F;
+    --cream:#FAFAFA;--cream-dim:#EFEFEF;
+    --gold:#E8171C;--gold-dark:#B10F13;--maroon:#B10F13;
+    --blue:#1230C4;--blue-dark:#0C2091;
+    --amber:#B7791F;--amber-bg:#FBF0DC;
+    --green-ok:#2F7D32;--green-ok-bg:#E4F3E5;
+    --sky:#1D6FA5;--sky-bg:#E3EFF6;
+    --ink:#161616;--ink-soft:#5C5C5C;--line:rgba(20,20,20,0.12);
+    font-family:'Inter',sans-serif;
+  }
+  *{box-sizing:border-box;}
+  body{margin:0;background:var(--cream);color:var(--ink);min-height:100vh;}
+  h1,h2,h3,.display{font-family:'Fraunces',serif;font-weight:600;letter-spacing:-0.01em;}
+  .mono{font-family:'JetBrains Mono',monospace;}
+
+  header{
+    background:var(--green-800);color:var(--cream);padding:20px 24px;
+    display:flex;align-items:center;justify-content:space-between;
+    position:sticky;top:0;z-index:20;box-shadow:0 1px 0 rgba(0,0,0,0.15);
+    flex-wrap:wrap;gap:10px;
+  }
+  .brand{display:flex;align-items:center;gap:12px;}
+  .brand-text .name{font-family:'Fraunces',serif;font-size:18px;font-weight:700;line-height:1.1;}
+  .brand-text .tag{font-size:11px;letter-spacing:0.1em;text-transform:uppercase;color:var(--gold);}
+  .back-link{color:var(--cream);opacity:0.75;font-size:13px;text-decoration:none;display:inline-flex;align-items:center;gap:6px;}
+  .back-link:hover{opacity:1;}
+
+  main{max-width:920px;margin:0 auto;padding:28px 20px 90px;}
+  .intro{margin-bottom:22px;}
+  .intro h1{font-size:24px;margin:0 0 6px;color:var(--green-900);}
+  .intro p{margin:0;color:var(--ink-soft);font-size:13.5px;max-width:640px;line-height:1.6;}
+
+  .card{background:#fff;border:1px solid var(--line);border-radius:14px;padding:20px;margin-bottom:18px;}
+  .card h2{font-size:16px;margin:0 0 4px;color:var(--green-900);}
+  .card .card-sub{font-size:12px;color:var(--ink-soft);margin-bottom:16px;}
+
+  .field-row{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px;}
+  .field-row3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;margin-bottom:12px;}
+  .field{margin-bottom:12px;}
+  .field label{display:block;font-size:12px;font-weight:600;color:var(--ink-soft);margin-bottom:5px;}
+  .field .hint{font-size:10.5px;color:var(--ink-soft);margin-top:3px;font-weight:400;}
+  .field input, .field select{
+    width:100%;font-family:'Inter',sans-serif;font-size:13.5px;
+    padding:9px 11px;border-radius:8px;border:1px solid var(--line);
+    background:var(--cream);color:var(--ink);
+  }
+  .field input:focus, .field select:focus{outline:none;border-color:var(--gold-dark);}
+
+  .segmented{display:flex;border:1px solid var(--line);border-radius:8px;overflow:hidden;}
+  .segmented button{
+    flex:1;padding:9px 6px;font-size:12px;font-weight:600;
+    background:var(--cream);border:none;border-right:1px solid var(--line);
+    cursor:pointer;color:var(--ink-soft);
+  }
+  .segmented button:last-child{border-right:none;}
+  .segmented button.active{background:var(--green-800);color:var(--cream);}
+
+  .profile-bmi{
+    display:flex;align-items:center;gap:14px;margin-top:6px;
+    background:var(--cream);border:1px solid var(--line);border-radius:10px;padding:12px 14px;
+  }
+  .profile-bmi .val{font-family:'JetBrains Mono',monospace;font-weight:700;font-size:20px;color:var(--green-900);}
+  .profile-bmi .lbl{font-size:11px;color:var(--ink-soft);}
+
+  /* ---------- Tabs ---------- */
+  .tabs{display:flex;overflow-x:auto;gap:6px;margin-bottom:16px;padding-bottom:4px;}
+  .tabs button{
+    flex-shrink:0;padding:9px 14px;border-radius:999px;border:1px solid var(--line);
+    background:#fff;color:var(--ink-soft);font-size:12.5px;font-weight:600;cursor:pointer;white-space:nowrap;
+  }
+  .tabs button.active{background:var(--green-800);color:var(--cream);border-color:var(--green-800);}
+  .tab-panel{display:none;}
+  .tab-panel.active{display:block;}
+
+  .btn{
+    font-family:'Inter',sans-serif;font-size:13.5px;font-weight:600;
+    padding:11px 18px;border-radius:999px;border:1.5px solid var(--green-800);
+    background:var(--green-800);color:var(--cream);cursor:pointer;
+  }
+  .btn:hover{background:var(--green-700);}
+  .btn.ghost{background:transparent;color:var(--green-800);}
+  .btn.ghost:hover{background:rgba(20,20,20,0.05);}
+  .btn-row{display:flex;gap:10px;flex-wrap:wrap;margin-top:14px;}
+
+  /* ---------- Gauge ---------- */
+  .gauge-wrap{text-align:center;margin:6px 0;}
+  .gauge-wrap svg{width:100%;max-width:280px;height:auto;}
+  .gauge-value{font-family:'Fraunces',serif;font-weight:700;font-size:24px;color:var(--green-900);margin-top:-24px;}
+  .badge{display:inline-block;font-size:11px;font-weight:700;padding:4px 12px;border-radius:999px;margin-top:4px;}
+  .badge.bs{background:var(--green-ok-bg);color:var(--green-ok);}
+  .badge.b{background:var(--sky-bg);color:var(--sky);}
+  .badge.c{background:var(--amber-bg);color:var(--amber);}
+  .badge.k{background:#FCE9E9;color:var(--maroon);}
+  .badge.ks{background:#F5D6D6;color:#7a0d10;}
+
+  /* ---------- Norm table (accordion) ---------- */
+  .norm-toggle{
+    font-size:12px;color:var(--sky);cursor:pointer;font-weight:600;
+    display:inline-flex;align-items:center;gap:5px;margin-top:10px;
+  }
+  .norm-table-wrap{display:none;margin-top:12px;overflow-x:auto;}
+  .norm-table-wrap.open{display:block;}
+  .norm-table{width:100%;border-collapse:collapse;font-size:11.5px;}
+  .norm-table th, .norm-table td{padding:7px 9px;border:1px solid var(--line);text-align:center;}
+  .norm-table th{background:var(--cream-dim);font-weight:700;}
+  .norm-table tr.highlight td{background:#FFF3D6;font-weight:700;}
+  .norm-source{font-size:10.5px;color:var(--ink-soft);margin-top:8px;font-style:italic;line-height:1.5;}
+
+  /* ---------- Ringkasan ---------- */
+  .summary-grid{display:flex;flex-direction:column;gap:8px;}
+  .summary-row{
+    display:flex;justify-content:space-between;align-items:center;
+    border:1px solid var(--line);border-radius:10px;padding:12px 14px;
+  }
+  .summary-row .s-label{font-size:13px;font-weight:600;}
+  .summary-row .s-value{font-size:12px;color:var(--ink-soft);font-family:'JetBrains Mono',monospace;}
+
+  /* ---------- Riwayat ---------- */
+  .history-list{display:flex;flex-direction:column;gap:8px;margin-top:10px;}
+  .history-row{
+    display:flex;justify-content:space-between;align-items:center;
+    border:1px solid var(--line);border-radius:10px;padding:10px 14px;font-size:12px;background:#fff;
+  }
+
+  .disclaimer{
+    font-size:11px;color:var(--ink-soft);background:var(--cream-dim);
+    border-radius:8px;padding:12px 14px;line-height:1.6;margin-top:20px;
+  }
+  footer{text-align:center;padding:24px;font-size:12px;color:var(--ink-soft);}
+
+  @media print{
+    header, .tabs, .btn-row, .norm-toggle, .back-link{display:none !important;}
+    .tab-panel{display:block !important;}
+    body{background:#fff;}
+    .card{break-inside:avoid;border:1px solid #999;}
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="brand">
+    <img src="assets/logo.jpg" alt="Logo Aghna Archery" style="width:36px;height:36px;border-radius:8px;object-fit:cover;">
+    <div class="brand-text">
+      <div class="name">Tes Kondisi Fisik</div>
+      <div class="tag">Aghna Archery Club — Tools Pembantu</div>
+    </div>
+  </div>
+  <a class="back-link" href="index.html">&#8592; Kembali ke situs utama</a>
+</header>
+
+<main>
+  <div class="intro">
+    <h1>Tes kondisi fisik pemanah</h1>
+    <p>Isi profil dan hasil tes di 6 kategori, lihat kategori otomatis dari norma yang diakui, simpan riwayat, dan cetak hasil. <strong>Catatan sumber norma:</strong> sit-up 60 detik usia 13-19 tahun memakai standar resmi <strong>TKJI</strong> (Tes Kesegaran Jasmani Indonesia). Tes lain memakai standar internasional yang diakui (ACSM, Topend Sports/Camry, Léger 1988) karena TKJI tidak mencakup item tersebut — sumber lengkap tertulis di bawah tiap tabel norma.</p>
+  </div>
+
+  <!-- ===== PROFIL ===== -->
+  <div class="card">
+    <h2>Profil pengguna</h2>
+    <div class="card-sub">Pilih pemanah dari daftar anggota (opsional) supaya riwayat tersimpan otomatis.</div>
+
+    <div class="field">
+      <label>Pilih pemanah</label>
+      <select id="p-member" onchange="handleMemberChange()">
+        <option value="">— Isi manual (tidak disimpan ke riwayat) —</option>
+      </select>
+    </div>
+    <div class="field">
+      <label>Nama</label>
+      <input type="text" id="p-nama" placeholder="Nama lengkap">
+    </div>
+    <div class="field-row3">
+      <div class="field">
+        <label>Jenis kelamin</label>
+        <div class="segmented" id="p-gender">
+          <button type="button" data-value="pria" class="active">Pria</button>
+          <button type="button" data-value="wanita">Wanita</button>
+        </div>
+      </div>
+      <div class="field">
+        <label>Usia (tahun)</label>
+        <input type="number" id="p-usia" value="20" min="10" max="100" oninput="renderAllGauges()">
+      </div>
+      <div class="field">
+        <label>Tinggi (cm)</label>
+        <input type="number" id="p-tinggi" value="165" min="100" step="0.5" oninput="renderAllGauges()">
+      </div>
+    </div>
+    <div class="field" style="max-width:200px;">
+      <label>Berat (kg)</label>
+      <input type="number" id="p-berat" value="60" min="20" step="0.1" oninput="renderAllGauges()">
+    </div>
+    <div class="profile-bmi">
+      <div>
+        <div class="val" id="profile-bmi-val">-</div>
+        <div class="lbl">IMT (BMI)</div>
+      </div>
+      <div id="profile-bmi-badge"></div>
+    </div>
+  </div>
+
+  <!-- ===== TABS ===== -->
+  <div class="tabs" id="tabs"></div>
+  <div id="tab-content"></div>
+
+  <div class="btn-row">
+    <button class="btn" onclick="simpanRiwayat()">&#128190; Simpan riwayat</button>
+    <button class="btn ghost" onclick="window.print()">&#128424; Cetak / PDF</button>
+  </div>
+
+  <!-- ===== RIWAYAT ===== -->
+  <div class="card" id="history-card" style="display:none;">
+    <h2>Riwayat tes</h2>
+    <div class="card-sub">Tersimpan otomatis kalau memilih nama dari daftar anggota.</div>
+    <div class="history-list" id="history-list"></div>
+  </div>
+
+  <div class="disclaimer">
+    <strong>Sumber norma:</strong> IMT klasifikasi Asia-Pasifik (WHO); Handgrip dari Camry Electronic Hand Dynamometer (dipublikasikan Topend Sports); Push-up dari ACSM Health-Related Physical Fitness Assessment Manual (diinterpolasi antar kelompok usia); Sit-up 13-19 tahun dari TKJI resmi, kelompok usia lain estimasi umum; VO2max/Bleep Test dari formula Léger et al. (1988) & norma Topend Sports; Lari 2.4km dari formula prediksi 1.5 mile run; Sit and Reach & Stork Balance dari ACSM/Topend Sports (tabel dewasa umum, disesuaikan estimasi per kelompok usia). Hasil ini estimasi untuk membantu monitoring, bukan pengganti tes laboratorium atau penilaian resmi.
+  </div>
+</main>
+
+<footer>Aghna Archery Club &middot; Tes Kondisi Fisik — Tahap 1</footer>
+
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
+<script>
+const firebaseConfig = {
+  apiKey: "AIzaSyDs5WwbTEQAzQzncPTGbAZsyrIBTDeMEl0",
+  authDomain: "aghna-archery.firebaseapp.com",
+  projectId: "aghna-archery",
+  storageBucket: "aghna-archery.firebasestorage.app",
+  messagingSenderId: "374280708816",
+  appId: "1:374280708816:web:258922b58d23d651cd74d5"
+};
+firebase.initializeApp(firebaseConfig);
+const db = firebase.firestore();
+
+let MEMBERS = [];
+let selectedMemberId = '';
+
+function escapeHtml(str){ const d=document.createElement('div'); d.textContent=str??''; return d.innerHTML; }
+function todayStr(){ return new Date().toISOString().slice(0,10); }
+function fmtTanggal(iso){
+  const d = new Date(iso+'T00:00:00');
+  return d.toLocaleDateString('id-ID',{day:'numeric',month:'short',year:'numeric'});
+}
+function ageBand(age){
+  if(age <= 19) return '13-19';
+  if(age <= 39) return '20-39';
+  if(age <= 59) return '40-59';
+  return '60+';
+}
+function catInfo(cat){
+  const map = {
+    ks:{label:'Kurang Sekali', cls:'ks'},
+    k:{label:'Kurang', cls:'k'},
+    c:{label:'Cukup', cls:'c'},
+    b:{label:'Baik', cls:'b'},
+    bs:{label:'Baik Sekali', cls:'bs'},
+  };
+  return map[cat] || {label:'-', cls:'c'};
+}
+
+// ============ Segmented control ============
+function setupSegmented(id, onChange){
+  const wrap = document.getElementById(id);
+  wrap.addEventListener('click', e=>{
+    const btn = e.target.closest('button');
+    if(!btn) return;
+    wrap.querySelectorAll('button').forEach(b=>b.classList.remove('active'));
+    btn.classList.add('active');
+    if(onChange) onChange(btn.dataset.value);
+  });
+}
+function getSegVal(id){ return document.querySelector(`#${id} button.active`).dataset.value; }
+setupSegmented('p-gender', ()=>renderAllGauges());
+
+// ============ Muat daftar pemanah ============
+db.collection('members').onSnapshot(snapshot=>{
+  MEMBERS = snapshot.docs.map(doc=>({id:doc.id, ...doc.data()})).sort((a,b)=>a.nama.localeCompare(b.nama));
+  const sel = document.getElementById('p-member');
+  const cur = sel.value;
+  sel.innerHTML = '<option value="">— Isi manual (tidak disimpan ke riwayat) —</option>' +
+    MEMBERS.map(m=>`<option value="${m.id}">${escapeHtml(m.nama)}</option>`).join('');
+  sel.value = cur;
+}, err=>console.error('Gagal memuat anggota:', err));
+
+function handleMemberChange(){
+  selectedMemberId = document.getElementById('p-member').value;
+  const m = MEMBERS.find(x=>x.id===selectedMemberId);
+  if(m){
+    document.getElementById('p-nama').value = m.nama;
+    if(m.berat != null) document.getElementById('p-berat').value = m.berat;
+    if(m.tinggi != null) document.getElementById('p-tinggi').value = m.tinggi;
+    if(m.tanggalLahir){
+      const umur = Math.floor((Date.now()-new Date(m.tanggalLahir).getTime())/(365.25*24*3600*1000));
+      if(umur>0) document.getElementById('p-usia').value = umur;
+    }
+    loadHistory(m.id);
+  }else{
+    document.getElementById('history-card').style.display = 'none';
+  }
+  renderAllGauges();
+}
+
+/* ============================================================
+   GAUGE GENERIK (speedometer)
+   ============================================================ */
+function pointOnGauge(cx,cy,r,thetaDeg){
+  const phi = Math.PI - thetaDeg*(Math.PI/180);
+  return { x: cx + r*Math.cos(phi), y: cy - r*Math.sin(phi) };
+}
+function arcPath(cx,cy,r,t1,t2){
+  const p1=pointOnGauge(cx,cy,r,t1), p2=pointOnGauge(cx,cy,r,t2);
+  const largeArc=(t2-t1)>180?1:0;
+  return `M ${p1.x.toFixed(2)} ${p1.y.toFixed(2)} A ${r} ${r} 0 ${largeArc} 1 ${p2.x.toFixed(2)} ${p2.y.toFixed(2)}`;
+}
+function renderGauge(value, gMin, gMax, bands){
+  const cx=140, cy=130, r=105;
+  const toTheta = v => Math.max(0, Math.min(180, ((v-gMin)/(gMax-gMin))*180));
+  const bandPaths = bands.map(b=>
+    `<path d="${arcPath(cx,cy,r,toTheta(b.from),toTheta(b.to))}" stroke="${b.color}" stroke-width="18" fill="none"/>`
+  ).join('');
+  const nt = toTheta(value);
+  const tip = pointOnGauge(cx,cy,r-28,nt);
+  return `<svg viewBox="0 0 280 155" xmlns="http://www.w3.org/2000/svg">
+    ${bandPaths}
+    <line x1="${cx}" y1="${cy}" x2="${tip.x.toFixed(2)}" y2="${tip.y.toFixed(2)}" stroke="#141414" stroke-width="3.5" stroke-linecap="round"/>
+    <circle cx="${cx}" cy="${cy}" r="6" fill="#141414"/>
+  </svg>`;
+}
+
+/* ============================================================
+   TABEL NORMA GENERIK
+   ============================================================ */
+function renderNormTable(testKey, unit, ageTables, userAge, userGender, lowerIsBetter){
+  const band = ageBand(userAge);
+  const bandNames = ['13-19','20-39','40-59','60+'];
+  const catLabels = ['Kurang Sekali','Kurang','Cukup','Baik','Baik Sekali'];
+
+  function rangeLabel(thr, idx){
+    if(!lowerIsBetter){
+      if(idx===0) return `< ${thr[0]}`;
+      if(idx===4) return `> ${thr[3]}`;
+      return `${thr[idx-1]} – ${thr[idx]}`;
+    }else{
+      if(idx===0) return `> ${thr[3]}`;
+      if(idx===4) return `< ${thr[0]}`;
+      return `${thr[idx-1]} – ${thr[idx]}`;
+    }
+  }
+
+  let rows = '';
+  bandNames.forEach(bn=>{
+    ['pria','wanita'].forEach(g=>{
+      const thr = ageTables[bn] && ageTables[bn][g];
+      if(!thr) return;
+      const isUserRow = (bn===band && g===userGender);
+      rows += `<tr class="${isUserRow?'highlight':''}"><td>${bn}</td><td>${g==='pria'?'Pria':'Wanita'}</td>`;
+      for(let i=0;i<5;i++){
+        rows += `<td>${rangeLabel(thr,i)}</td>`;
+      }
+      rows += `</tr>`;
+    });
+  });
+
+  return `
+  <table class="norm-table">
+    <thead><tr><th>Usia</th><th>Gender</th>${catLabels.map(c=>`<th>${c}</th>`).join('')}</tr></thead>
+    <tbody>${rows}</tbody>
+  </table>`;
+}
+
+function findCategory(value, thr, lowerIsBetter){
+  if(!lowerIsBetter){
+    if(value < thr[0]) return 'ks';
+    if(value < thr[1]) return 'k';
+    if(value < thr[2]) return 'c';
+    if(value < thr[3]) return 'b';
+    return 'bs';
+  }else{
+    if(value > thr[3]) return 'ks';
+    if(value > thr[2]) return 'k';
+    if(value > thr[1]) return 'c';
+    if(value > thr[0]) return 'b';
+    return 'bs';
+  }
+}
+
+function toggleNormTable(id){
+  const el = document.getElementById(id);
+  el.classList.toggle('open');
+}
+</script>
+<script>
+/* ============================================================
+   DATA NORMA — lihat catatan sumber di footer halaman
+   ============================================================ */
+
+const NORM_HANDGRIP = {
+  '13-19': { pria:[25,33,42.5,52], wanita:[13,17.3,23.2,29.1] },
+  '20-39': { pria:[27.5,36.6,46.5,56.4], wanita:[16.6,22.2,29.3,36.5] },
+  '40-59': { pria:[25.1,33.4,42.8,52.2], wanita:[13.7,18.3,25.2,32.1] },
+  '60+':   { pria:[19.9,26.6,34.5,42.4], wanita:[11.9,15.8,21.7,27.6] },
+};
+
+const NORM_PUSHUP = {
+  '13-19': { pria:[17,22,29,36], wanita:[11,15,21,28] },
+  '20-39': { pria:[17,22,29,36], wanita:[11,15,21,28] },
+  '40-59': { pria:[12,17,23,30], wanita:[12,18,25,31] },
+  '60+':   { pria:[8,12,17,23], wanita:[7,11,16,21] },
+};
+
+const NORM_SITUP = {
+  '13-19': { pria:[10,21,30,41], wanita:[3,9,19,28] },
+  '20-39': { pria:[25,35,44,50], wanita:[18,25,33,39] },
+  '40-59': { pria:[18,28,37,43], wanita:[12,19,26,32] },
+  '60+':   { pria:[12,21,29,35], wanita:[8,14,20,26] },
+};
+
+const NORM_PLANK = {
+  '13-19': { pria:[18,39,69,99], wanita:[18,39,69,99] },
+  '20-39': { pria:[20,44,74,104], wanita:[20,44,74,104] },
+  '40-59': { pria:[15,34,59,89], wanita:[15,34,59,89] },
+  '60+':   { pria:[10,24,44,69], wanita:[10,24,44,69] },
+};
+
+const NORM_VO2MAX = {
+  '13-19': { pria:[30,42,47,60], wanita:[28,38,42,56] },
+  '20-39': { pria:[30,40,43,56], wanita:[26,35,39,52] },
+  '40-59': { pria:[25,32,36,45], wanita:[20,28,31,40] },
+  '60+':   { pria:[20,26,29,37], wanita:[17,22,25,32] },
+};
+
+const NORM_SITREACH = {
+  '13-19': { pria:[-17,2,8,30], wanita:[-12,3,13,33] },
+  '20-39': { pria:[-20,-1,5,27], wanita:[-15,0,10,30] },
+  '40-59': { pria:[-28,-9,-3,19], wanita:[-23,-8,2,22] },
+  '60+':   { pria:[-36,-17,-11,11], wanita:[-31,-16,-6,14] },
+};
+
+const NORM_STORK = {
+  '13-19': { pria:[10,24,39,50], wanita:[10,24,39,50] },
+  '20-39': { pria:[10,24,39,50], wanita:[10,24,39,50] },
+  '40-59': { pria:[10,24,39,50], wanita:[10,24,39,50] },
+  '60+':   { pria:[7,17,29,40], wanita:[7,17,29,40] },
+};
+
+function bodyFatCategory(pct, gender){
+  if(gender==='pria'){
+    if(pct<6) return {cat:'c', note:'Sangat rendah (perhatian)'};
+    if(pct<=13) return {cat:'bs', note:'Atlet'};
+    if(pct<=17) return {cat:'b', note:'Bugar'};
+    if(pct<=24) return {cat:'c', note:'Dapat diterima'};
+    return {cat:'k', note:'Tinggi'};
+  }else{
+    if(pct<14) return {cat:'c', note:'Sangat rendah (perhatian)'};
+    if(pct<=20) return {cat:'bs', note:'Atlet'};
+    if(pct<=24) return {cat:'b', note:'Bugar'};
+    if(pct<=31) return {cat:'c', note:'Dapat diterima'};
+    return {cat:'k', note:'Tinggi'};
+  }
+}
+
+function bmiCategory(bmi){
+  if(bmi<18.5) return {label:'Kurus', cls:'k'};
+  if(bmi<23) return {label:'Normal', cls:'bs'};
+  if(bmi<25) return {label:'Berisiko (Overweight)', cls:'c'};
+  if(bmi<30) return {label:'Obesitas I', cls:'k'};
+  return {label:'Obesitas II', cls:'ks'};
+}
+</script>
+<script>
+let RESULTS = {};
+
+function getProfile(){
+  return {
+    nama: document.getElementById('p-nama').value.trim() || 'Tanpa nama',
+    gender: getSegVal('p-gender'),
+    usia: parseFloat(document.getElementById('p-usia').value) || 0,
+    tinggi: parseFloat(document.getElementById('p-tinggi').value) || 0,
+    berat: parseFloat(document.getElementById('p-berat').value) || 0,
+  };
+}
+
+function renderProfileBmi(){
+  const p = getProfile();
+  if(p.tinggi<=0 || p.berat<=0){ document.getElementById('profile-bmi-val').textContent='-'; return; }
+  const bmi = p.berat / ((p.tinggi/100)**2);
+  const cat = bmiCategory(bmi);
+  document.getElementById('profile-bmi-val').textContent = bmi.toFixed(1);
+  document.getElementById('profile-bmi-badge').innerHTML = `<span class="badge ${cat.cls}">${cat.label}</span>`;
+  RESULTS.komposisi = { bmi, bmiCat: cat.label };
+}
+
+const TAB_DEFS = [
+  { key:'komposisi', label:'Komposisi Tubuh' },
+  { key:'kekuatan', label:'Kekuatan Otot' },
+  { key:'dayatahan', label:'Daya Tahan Otot' },
+  { key:'aerobik', label:'Kapasitas Aerobik' },
+  { key:'keseimbangan', label:'Keseimbangan' },
+  { key:'kelenturan', label:'Kelenturan' },
+  { key:'ringkasan', label:'Ringkasan' },
+];
+
+function initTabs(){
+  const tabsEl = document.getElementById('tabs');
+  tabsEl.innerHTML = TAB_DEFS.map((t,i)=>`<button data-tab="${t.key}" class="${i===0?'active':''}" onclick="switchTab('${t.key}')">${t.label}</button>`).join('');
+  const content = document.getElementById('tab-content');
+  content.innerHTML = TAB_DEFS.map((t,i)=>`<div class="tab-panel ${i===0?'active':''}" id="panel-${t.key}"></div>`).join('');
+
+  renderKomposisiPanel();
+  renderKekuatanPanel();
+  renderDayaTahanPanel();
+  renderAerobikPanel();
+  renderKeseimbanganPanel();
+  renderKelenturanPanel();
+  renderRingkasanPanel();
+}
+
+function switchTab(key){
+  document.querySelectorAll('.tabs button').forEach(b=>b.classList.toggle('active', b.dataset.tab===key));
+  document.querySelectorAll('.tab-panel').forEach(p=>p.classList.toggle('active', p.id===`panel-${key}`));
+  if(key==='ringkasan') renderRingkasanPanel();
+}
+
+function renderAllGauges(){
+  renderProfileBmi();
+  renderKomposisiPanel(true);
+  renderKekuatanPanel(true);
+  renderDayaTahanPanel(true);
+  renderAerobikPanel(true);
+  renderKeseimbanganPanel(true);
+  renderKelenturanPanel(true);
+}
+
+function renderKomposisiPanel(keepInputs){
+  const panel = document.getElementById('panel-komposisi');
+  const bodyFatVal = keepInputs && document.getElementById('k-bodyfat') ? document.getElementById('k-bodyfat').value : '';
+
+  panel.innerHTML = `
+    <div class="card">
+      <h2>Komposisi Tubuh</h2>
+      <div class="card-sub">IMT dihitung otomatis dari profil. Isi juga persen lemak tubuh kalau punya alat ukur (caliper/BIA).</div>
+      <div class="field" style="max-width:220px;">
+        <label>Persen lemak tubuh (%)</label>
+        <input type="number" id="k-bodyfat" value="${bodyFatVal}" min="3" max="60" step="0.1" oninput="renderKomposisiPanel(true)">
+      </div>
+      <div id="komposisi-result"></div>
+      <div class="norm-toggle" onclick="toggleNormTable('komposisi-norm')">&#128202; Lihat tabel norma lengkap</div>
+      <div class="norm-table-wrap" id="komposisi-norm">
+        <table class="norm-table">
+          <thead><tr><th>Kategori IMT</th><th>Rentang (kg/m&sup2;)</th></tr></thead>
+          <tbody>
+            <tr><td>Kurus</td><td>&lt; 18.5</td></tr>
+            <tr><td>Normal</td><td>18.5 – 22.9</td></tr>
+            <tr><td>Berisiko (Overweight)</td><td>23 – 24.9</td></tr>
+            <tr><td>Obesitas I</td><td>25 – 29.9</td></tr>
+            <tr><td>Obesitas II</td><td>&ge; 30</td></tr>
+          </tbody>
+        </table>
+        <div class="norm-source">Sumber: Klasifikasi IMT Asia-Pasifik (WHO Regional Office for the Western Pacific).</div>
+      </div>
+    </div>`;
+
+  const p = getProfile();
+  const resEl = document.getElementById('komposisi-result');
+  if(p.tinggi<=0 || p.berat<=0){
+    resEl.innerHTML = `<p style="color:var(--ink-soft);font-size:13px;">Lengkapi tinggi & berat badan di Profil dulu.</p>`;
+    return;
+  }
+  const bmi = p.berat/((p.tinggi/100)**2);
+  const cat = bmiCategory(bmi);
+  let html = `
+    <div class="gauge-wrap">
+      ${renderGauge(bmi, 12, 36, [
+        {from:12,to:18.5,color:'#1D6FA5'},{from:18.5,to:23,color:'#2F7D32'},
+        {from:23,to:25,color:'#B7791F'},{from:25,to:30,color:'#B10F13'},{from:30,to:36,color:'#7a0d10'}
+      ])}
+      <div class="gauge-value">${bmi.toFixed(1)}</div>
+      <span class="badge ${cat.cls}">${cat.label}</span>
+    </div>`;
+
+  const bf = parseFloat(bodyFatVal);
+  if(bf > 0){
+    const bfc = bodyFatCategory(bf, p.gender);
+    html += `<div style="text-align:center;margin-top:6px;">Lemak tubuh: <b>${bf}%</b> — <span class="badge ${bfc.cat}">${bfc.note}</span></div>`;
+  }
+  resEl.innerHTML = html;
+  RESULTS.komposisi = { bmi, bmiCat: cat.label, bodyFat: bf>0?bf:null };
+}
+
+function renderKekuatanPanel(keepInputs){
+  const panel = document.getElementById('panel-kekuatan');
+  const val = keepInputs && document.getElementById('kk-grip') ? document.getElementById('kk-grip').value : '';
+  panel.innerHTML = `
+    <div class="card">
+      <h2>Kekuatan Otot Statis</h2>
+      <div class="card-sub">Handgrip dynamometer — genggam sekuat mungkin 3-5 detik, catat hasil tertinggi dari tangan dominan.</div>
+      <div class="field" style="max-width:220px;">
+        <label>Hasil handgrip (kg)</label>
+        <input type="number" id="kk-grip" value="${val}" min="0" step="0.1" oninput="renderKekuatanPanel(true)">
+      </div>
+      <div id="kekuatan-result"></div>
+      <div class="norm-toggle" onclick="toggleNormTable('kekuatan-norm')">&#128202; Lihat tabel norma lengkap</div>
+      <div class="norm-table-wrap" id="kekuatan-norm">
+        ${renderNormTable('kekuatan','kg',NORM_HANDGRIP,getProfile().usia,getProfile().gender,false)}
+        <div class="norm-source">Sumber: Camry Electronic Hand Dynamometer Instruction Manual (dipublikasikan Topend Sports), diadaptasi dari 3 kategori (Weak/Normal/Strong) menjadi 5 tingkat.</div>
+      </div>
+    </div>`;
+
+  const p = getProfile();
+  const grip = parseFloat(val);
+  const resEl = document.getElementById('kekuatan-result');
+  if(!(grip>0) || p.usia<=0){ resEl.innerHTML=''; return; }
+  const thr = NORM_HANDGRIP[ageBand(p.usia)][p.gender];
+  const cat = findCategory(grip, thr, false);
+  const info = catInfo(cat);
+  resEl.innerHTML = `
+    <div class="gauge-wrap">
+      ${renderGauge(grip, 0, thr[3]*1.3, [
+        {from:0,to:thr[0],color:'#7a0d10'},{from:thr[0],to:thr[1],color:'#B10F13'},
+        {from:thr[1],to:thr[2],color:'#B7791F'},{from:thr[2],to:thr[3],color:'#1D6FA5'},{from:thr[3],to:thr[3]*1.3,color:'#2F7D32'}
+      ])}
+      <div class="gauge-value">${grip} kg</div>
+      <span class="badge ${info.cls}">${info.label}</span>
+    </div>`;
+  RESULTS.kekuatan = { grip, cat: info.label };
+}
+
+function renderDayaTahanPanel(keepInputs){
+  const panel = document.getElementById('panel-dayatahan');
+  const g = id => keepInputs && document.getElementById(id) ? document.getElementById(id).value : '';
+  panel.innerHTML = `
+    <div class="card">
+      <h2>Daya Tahan Otot</h2>
+      <div class="card-sub">Isi salah satu atau semua — masing-masing dinilai terpisah.</div>
+      <div class="field-row3">
+        <div class="field"><label>Plank (detik)</label><input type="number" id="dt-plank" value="${g('dt-plank')}" min="0" oninput="renderDayaTahanPanel(true)"></div>
+        <div class="field"><label>Push-up 1 menit</label><input type="number" id="dt-pushup" value="${g('dt-pushup')}" min="0" oninput="renderDayaTahanPanel(true)"></div>
+        <div class="field"><label>Sit-up 1 menit</label><input type="number" id="dt-situp" value="${g('dt-situp')}" min="0" oninput="renderDayaTahanPanel(true)"></div>
+      </div>
+      <div id="dayatahan-result" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:14px;"></div>
+
+      <div class="norm-toggle" onclick="toggleNormTable('plank-norm')">&#128202; Tabel norma Plank</div>
+      <div class="norm-table-wrap" id="plank-norm">
+        ${renderNormTable('plank','detik',NORM_PLANK,getProfile().usia,getProfile().gender,false)}
+        <div class="norm-source">Sumber: Topend Sports Plank Test Calculator, berdasarkan Strand et al. (2014). Tabel unisex (tidak dipecah gender pada sumber asli).</div>
+      </div>
+      <div class="norm-toggle" onclick="toggleNormTable('pushup-norm')">&#128202; Tabel norma Push-up</div>
+      <div class="norm-table-wrap" id="pushup-norm">
+        ${renderNormTable('pushup','rep',NORM_PUSHUP,getProfile().usia,getProfile().gender,false)}
+        <div class="norm-source">Sumber: American College of Sports Medicine (ACSM) Health-Related Physical Fitness Assessment Manual. Kelompok usia 13-19 & 60+ diinterpolasi dari data usia dewasa terdekat.</div>
+      </div>
+      <div class="norm-toggle" onclick="toggleNormTable('situp-norm')">&#128202; Tabel norma Sit-up</div>
+      <div class="norm-table-wrap" id="situp-norm">
+        ${renderNormTable('situp','rep',NORM_SITUP,getProfile().usia,getProfile().gender,false)}
+        <div class="norm-source"><strong>Usia 13-19 tahun: TKJI resmi</strong> (baring duduk 60 detik, Pusat Pengembangan Kualitas Jasmani, Kemendikbud). Kelompok usia 20-39/40-59/60+ <strong>bukan</strong> dari TKJI (TKJI hanya berlaku 6-19 tahun) — memakai estimasi umum karena belum ada tabel baku tunggal untuk sit-up dewasa.</div>
+      </div>
+    </div>`;
+
+  const p = getProfile();
+  const resEl = document.getElementById('dayatahan-result');
+  let html = '';
+  const items = [
+    { id:'dt-plank', table:NORM_PLANK, unit:'detik', label:'Plank' },
+    { id:'dt-pushup', table:NORM_PUSHUP, unit:'rep', label:'Push-up' },
+    { id:'dt-situp', table:NORM_SITUP, unit:'rep', label:'Sit-up' },
+  ];
+  RESULTS.dayatahan = {};
+  items.forEach(it=>{
+    const v = parseFloat(g(it.id));
+    if(!(v>=0) || p.usia<=0) return;
+    const thr = it.table[ageBand(p.usia)][p.gender];
+    const cat = findCategory(v, thr, false);
+    const info = catInfo(cat);
+    html += `<div style="text-align:center;">
+      <div style="font-size:11px;color:var(--ink-soft);text-transform:uppercase;">${it.label}</div>
+      <div class="gauge-value" style="font-size:20px;">${v} ${it.unit}</div>
+      <span class="badge ${info.cls}">${info.label}</span>
+    </div>`;
+    RESULTS.dayatahan[it.label] = { value:v, cat:info.label };
+  });
+  resEl.innerHTML = html;
+}
+
+function renderAerobikPanel(keepInputs){
+  const panel = document.getElementById('panel-aerobik');
+  const metode = keepInputs && document.getElementById('ae-metode') ? document.getElementById('ae-metode').value : 'bleep';
+  const g = id => keepInputs && document.getElementById(id) ? document.getElementById(id).value : '';
+  panel.innerHTML = `
+    <div class="card">
+      <h2>Kapasitas Aerobik</h2>
+      <div class="card-sub">Pilih salah satu metode tes.</div>
+      <div class="field">
+        <label>Metode</label>
+        <select id="ae-metode" onchange="renderAerobikPanel(true)">
+          <option value="bleep" ${metode==='bleep'?'selected':''}>Bleep Test (Multistage Fitness Test)</option>
+          <option value="cooper" ${metode==='cooper'?'selected':''}>Lari 2.4 km (catat waktu tempuh)</option>
+        </select>
+      </div>
+      <div id="aerobik-inputs"></div>
+      <div id="aerobik-result"></div>
+      <div class="norm-toggle" onclick="toggleNormTable('aerobik-norm')">&#128202; Lihat tabel norma VO2max</div>
+      <div class="norm-table-wrap" id="aerobik-norm">
+        ${renderNormTable('aerobik','ml/kg/min',NORM_VO2MAX,getProfile().usia,getProfile().gender,false)}
+        <div class="norm-source">Sumber: Topend Sports VO2max Norms (7 kategori disederhanakan jadi 5). Estimasi VO2max dari Bleep Test memakai formula Léger et al. (1988); dari lari 2.4km memakai formula prediksi 1.5 mile run (George et al.).</div>
+      </div>
+    </div>`;
+
+  const inputsEl = document.getElementById('aerobik-inputs');
+  if(metode==='bleep'){
+    inputsEl.innerHTML = `
+      <div class="field-row">
+        <div class="field"><label>Level tercapai</label><input type="number" id="ae-level" value="${g('ae-level')}" min="1" max="21" oninput="renderAerobikPanel(true)"></div>
+        <div class="field"><label>Shuttle di level itu</label><input type="number" id="ae-shuttle" value="${g('ae-shuttle')}" min="0" max="16" oninput="renderAerobikPanel(true)"></div>
+      </div>`;
+  }else{
+    inputsEl.innerHTML = `
+      <div class="field" style="max-width:220px;">
+        <label>Waktu tempuh 2.4 km (menit)</label>
+        <input type="number" id="ae-waktu" value="${g('ae-waktu')}" min="5" step="0.1" oninput="renderAerobikPanel(true)">
+      </div>`;
+  }
+
+  const p = getProfile();
+  const resEl = document.getElementById('aerobik-result');
+  let vo2 = null;
+  if(metode==='bleep'){
+    const level = parseFloat(document.getElementById('ae-level') ? document.getElementById('ae-level').value : '');
+    if(level>0 && p.usia>0){
+      const speed = 8 + 0.5*level;
+      const effAge = p.usia<=19 ? p.usia : 18;
+      vo2 = 31.025 + 3.238*speed - 3.248*effAge + 0.1536*effAge*speed;
+    }
+  }else{
+    const waktu = parseFloat(document.getElementById('ae-waktu') ? document.getElementById('ae-waktu').value : '');
+    if(waktu>0){
+      vo2 = 483/waktu + 3.5;
+    }
+  }
+
+  if(vo2 && p.usia>0){
+    const thr = NORM_VO2MAX[ageBand(p.usia)][p.gender];
+    const cat = findCategory(vo2, thr, false);
+    const info = catInfo(cat);
+    resEl.innerHTML = `
+      <div class="gauge-wrap">
+        ${renderGauge(vo2, 15, 65, [
+          {from:15,to:thr[0],color:'#7a0d10'},{from:thr[0],to:thr[1],color:'#B10F13'},
+          {from:thr[1],to:thr[2],color:'#B7791F'},{from:thr[2],to:thr[3],color:'#1D6FA5'},{from:thr[3],to:65,color:'#2F7D32'}
+        ])}
+        <div class="gauge-value">${vo2.toFixed(1)}</div>
+        <div style="font-size:11px;color:var(--ink-soft);">ml/kg/min (estimasi VO2max)</div>
+        <span class="badge ${info.cls}">${info.label}</span>
+      </div>`;
+    RESULTS.aerobik = { vo2max: vo2, cat: info.label, metode };
+  } else {
+    resEl.innerHTML = '';
+  }
+}
+
+function renderKeseimbanganPanel(keepInputs){
+  const panel = document.getElementById('panel-keseimbangan');
+  const val = keepInputs && document.getElementById('ks-stork') ? document.getElementById('ks-stork').value : '';
+  panel.innerHTML = `
+    <div class="card">
+      <h2>Keseimbangan — Stork Stand Test</h2>
+      <div class="card-sub">Berdiri satu kaki, tumit terangkat, tangan di pinggang. Catat waktu sampai kehilangan keseimbangan (detik).</div>
+      <div class="field" style="max-width:220px;">
+        <label>Waktu bertahan (detik)</label>
+        <input type="number" id="ks-stork" value="${val}" min="0" oninput="renderKeseimbanganPanel(true)">
+      </div>
+      <div id="keseimbangan-result"></div>
+      <div class="norm-toggle" onclick="toggleNormTable('keseimbangan-norm')">&#128202; Lihat tabel norma lengkap</div>
+      <div class="norm-table-wrap" id="keseimbangan-norm">
+        ${renderNormTable('keseimbangan','detik',NORM_STORK,getProfile().usia,getProfile().gender,false)}
+        <div class="norm-source">Sumber: Topend Sports Stork Balance Stand Test (berbasis Johnson &amp; Nelson, 1979). Tabel unisex, kelompok 60+ disesuaikan estimasi penurunan keseimbangan terkait usia.</div>
+      </div>
+    </div>`;
+
+  const p = getProfile();
+  const v = parseFloat(val);
+  const resEl = document.getElementById('keseimbangan-result');
+  if(!(v>=0) || p.usia<=0){ resEl.innerHTML=''; return; }
+  const thr = NORM_STORK[ageBand(p.usia)][p.gender];
+  const cat = findCategory(v, thr, false);
+  const info = catInfo(cat);
+  resEl.innerHTML = `
+    <div class="gauge-wrap">
+      ${renderGauge(v, 0, 65, [
+        {from:0,to:thr[0],color:'#7a0d10'},{from:thr[0],to:thr[1],color:'#B10F13'},
+        {from:thr[1],to:thr[2],color:'#B7791F'},{from:thr[2],to:thr[3],color:'#1D6FA5'},{from:thr[3],to:65,color:'#2F7D32'}
+      ])}
+      <div class="gauge-value">${v} detik</div>
+      <span class="badge ${info.cls}">${info.label}</span>
+    </div>`;
+  RESULTS.keseimbangan = { detik:v, cat: info.label };
+}
+
+function renderKelenturanPanel(keepInputs){
+  const panel = document.getElementById('panel-kelenturan');
+  const val = keepInputs && document.getElementById('kl-reach') ? document.getElementById('kl-reach').value : '';
+  panel.innerHTML = `
+    <div class="card">
+      <h2>Kelenturan Sendi — Sit and Reach</h2>
+      <div class="card-sub">Duduk, kaki lurus, raih sejauh mungkin. Nilai positif = melewati ujung kaki, negatif = tidak sampai.</div>
+      <div class="field" style="max-width:220px;">
+        <label>Jarak raihan (cm)</label>
+        <input type="number" id="kl-reach" value="${val}" step="0.5" oninput="renderKelenturanPanel(true)">
+      </div>
+      <div id="kelenturan-result"></div>
+      <div class="norm-toggle" onclick="toggleNormTable('kelenturan-norm')">&#128202; Lihat tabel norma lengkap</div>
+      <div class="norm-table-wrap" id="kelenturan-norm">
+        ${renderNormTable('kelenturan','cm',NORM_SITREACH,getProfile().usia,getProfile().gender,false)}
+        <div class="norm-source">Sumber: Topend Sports Sit and Reach Norms / ACSM Guidelines for Exercise Testing and Prescription (tabel dewasa umum), disesuaikan estimasi penurunan &plusmn;5-7cm per dekade untuk kelompok usia lain.</div>
+      </div>
+    </div>`;
+
+  const p = getProfile();
+  const v = parseFloat(val);
+  const resEl = document.getElementById('kelenturan-result');
+  if(isNaN(v) || p.usia<=0){ resEl.innerHTML=''; return; }
+  const thr = NORM_SITREACH[ageBand(p.usia)][p.gender];
+  const cat = findCategory(v, thr, false);
+  const info = catInfo(cat);
+  resEl.innerHTML = `
+    <div class="gauge-wrap">
+      ${renderGauge(v, -40, 35, [
+        {from:-40,to:thr[0],color:'#7a0d10'},{from:thr[0],to:thr[1],color:'#B10F13'},
+        {from:thr[1],to:thr[2],color:'#B7791F'},{from:thr[2],to:thr[3],color:'#1D6FA5'},{from:thr[3],to:35,color:'#2F7D32'}
+      ])}
+      <div class="gauge-value">${v} cm</div>
+      <span class="badge ${info.cls}">${info.label}</span>
+    </div>`;
+  RESULTS.kelenturan = { cm:v, cat: info.label };
+}
+
+function renderRingkasanPanel(){
+  const panel = document.getElementById('panel-ringkasan');
+  const p = getProfile();
+  let rows = '';
+  rows += `<div class="summary-row"><div class="s-label">Profil</div><div class="s-value">${escapeHtml(p.nama)} &middot; ${p.gender==='pria'?'Pria':'Wanita'} &middot; ${p.usia} th &middot; ${p.tinggi} cm / ${p.berat} kg</div></div>`;
+
+  if(RESULTS.komposisi){
+    rows += `<div class="summary-row"><div class="s-label">Komposisi Tubuh (IMT)</div><div class="s-value">${RESULTS.komposisi.bmi?.toFixed(1) ?? '-'} — ${RESULTS.komposisi.bmiCat ?? '-'}</div></div>`;
+  }
+  if(RESULTS.kekuatan){
+    rows += `<div class="summary-row"><div class="s-label">Kekuatan Otot (Handgrip)</div><div class="s-value">${RESULTS.kekuatan.grip} kg — ${RESULTS.kekuatan.cat}</div></div>`;
+  }
+  if(RESULTS.dayatahan){
+    Object.entries(RESULTS.dayatahan).forEach(([label,d])=>{
+      rows += `<div class="summary-row"><div class="s-label">Daya Tahan (${label})</div><div class="s-value">${d.value} — ${d.cat}</div></div>`;
+    });
+  }
+  if(RESULTS.aerobik){
+    rows += `<div class="summary-row"><div class="s-label">Kapasitas Aerobik (VO2max)</div><div class="s-value">${RESULTS.aerobik.vo2max.toFixed(1)} ml/kg/min — ${RESULTS.aerobik.cat}</div></div>`;
+  }
+  if(RESULTS.keseimbangan){
+    rows += `<div class="summary-row"><div class="s-label">Keseimbangan (Stork Stand)</div><div class="s-value">${RESULTS.keseimbangan.detik} detik — ${RESULTS.keseimbangan.cat}</div></div>`;
+  }
+  if(RESULTS.kelenturan){
+    rows += `<div class="summary-row"><div class="s-label">Kelenturan (Sit and Reach)</div><div class="s-value">${RESULTS.kelenturan.cm} cm — ${RESULTS.kelenturan.cat}</div></div>`;
+  }
+
+  panel.innerHTML = `
+    <div class="card">
+      <h2>Ringkasan hasil</h2>
+      <div class="card-sub">Rekap semua tes yang sudah diisi. Isi tab lain untuk melengkapi.</div>
+      <div class="summary-grid">${rows}</div>
+    </div>`;
+}
+
+async function simpanRiwayat(){
+  if(!selectedMemberId){
+    alert('Pilih nama pemanah dari daftar anggota dulu supaya hasil bisa disimpan ke riwayat.');
+    return;
+  }
+  const p = getProfile();
+  const data = {
+    memberId: selectedMemberId,
+    memberNama: p.nama,
+    tanggal: todayStr(),
+    usia: p.usia, tinggi: p.tinggi, berat: p.berat, gender: p.gender,
+    hasil: RESULTS,
+  };
+  try{
+    await db.collection('tesFisik').add(data);
+    alert('Riwayat tersimpan!');
+    loadHistory(selectedMemberId);
+  }catch(err){
+    alert('Gagal menyimpan riwayat. Cek koneksi internet.\n'+err.message);
+  }
+}
+
+function loadHistory(memberId){
+  db.collection('tesFisik').get().then(snapshot=>{
+    const items = snapshot.docs.map(doc=>({id:doc.id,...doc.data()}))
+      .filter(t=>t.memberId===memberId)
+      .sort((a,b)=>b.tanggal.localeCompare(a.tanggal));
+    const card = document.getElementById('history-card');
+    if(items.length===0){ card.style.display='none'; return; }
+    card.style.display='block';
+    document.getElementById('history-list').innerHTML = items.map(t=>{
+      const bmi = t.hasil?.komposisi?.bmi;
+      return `<div class="history-row">
+        <span>${fmtTanggal(t.tanggal)}</span>
+        <span>${t.berat} kg${bmi?` &middot; IMT ${bmi.toFixed(1)}`:''}</span>
+      </div>`;
+    }).join('');
+  }).catch(err=>console.error('Gagal memuat riwayat:', err));
+}
+
+initTabs();
+renderProfileBmi();
+</script>
+</body>
+</html>
